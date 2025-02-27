@@ -214,7 +214,7 @@ class ExpoMessage
      *
      * @return $this
      */
-    public function setTitle(string $title = null): self
+    public function setTitle(?string $title = null): self
     {
         $this->title = $title;
 
@@ -230,7 +230,7 @@ class ExpoMessage
      *
      * @return $this
      */
-    public function setBody(string $body = null): self
+    public function setBody(?string $body = null): self
     {
         $this->body = $body;
 
@@ -246,7 +246,7 @@ class ExpoMessage
      *
      * @return $this
      */
-    public function setTtl(int $ttl = null): self
+    public function setTtl(?int $ttl = null): self
     {
         $this->ttl = $ttl;
 
@@ -262,7 +262,7 @@ class ExpoMessage
      *
      * @return $this
      */
-    public function setExpiration(int $expiration = null): self
+    public function setExpiration(?int $expiration = null): self
     {
         $this->expiration = $expiration;
 
@@ -302,7 +302,7 @@ class ExpoMessage
      *
      * @return $this
      */
-    public function setSubtitle(string $subtitle = null): self
+    public function setSubtitle(?string $subtitle = null): self
     {
         $this->subtitle = $subtitle;
 
@@ -333,7 +333,7 @@ class ExpoMessage
      *
      * @return $this
      */
-    public function setSound(string $sound = null): self
+    public function setSound(?string $sound = null): self
     {
         $this->sound = $sound;
 
@@ -349,7 +349,7 @@ class ExpoMessage
      *
      * @return $this
      */
-    public function setBadge(int $badge = null): self
+    public function setBadge(?int $badge = null): self
     {
         $this->badge = $badge;
 
@@ -365,7 +365,7 @@ class ExpoMessage
      *
      * @return $this
      */
-    public function setChannelId(string $channelId = null): self
+    public function setChannelId(?string $channelId = null): self
     {
         $this->channelId = $channelId;
 
@@ -381,7 +381,7 @@ class ExpoMessage
      *
      * @return $this
      */
-    public function setCategoryId(string $categoryId = null): self
+    public function setCategoryId(?string $categoryId = null): self
     {
         $this->categoryId = $categoryId;
 
