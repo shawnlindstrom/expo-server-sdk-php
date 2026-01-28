@@ -3,11 +3,12 @@
 namespace ExpoSDK\Tests;
 
 use ExpoSDK\ExpoMessage;
+use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
 class ExpoMessageTest extends TestCase
 {
-    /** @test */
+    #[Test]
     public function an_expo_message_can_be_instantiated()
     {
         $message = new ExpoMessage();
@@ -15,7 +16,7 @@ class ExpoMessageTest extends TestCase
         $this->assertInstanceOf(ExpoMessage::class, $message);
     }
 
-    /** @test */
+    #[Test]
     public function you_can_set_message_attributes()
     {
         $message = new ExpoMessage();
@@ -50,7 +51,7 @@ class ExpoMessageTest extends TestCase
         );
     }
 
-    /** @test */
+    #[Test]
     public function throws_exception_providing_unsupported_priority()
     {
         $message = new ExpoMessage();
@@ -62,7 +63,7 @@ class ExpoMessageTest extends TestCase
         $message->setPriority('foo');
     }
 
-    /** @test */
+    #[Test]
     public function throws_exception_if_data_is_not_null_object_or_assoc_array()
     {
         $message = new ExpoMessage();
@@ -76,7 +77,7 @@ class ExpoMessageTest extends TestCase
         $message->setData($data);
     }
 
-    /** @test */
+    #[Test]
     public function can_create_message_from_array()
     {
         $message = (new ExpoMessage([
@@ -102,7 +103,7 @@ class ExpoMessageTest extends TestCase
         $this->assertEquals($expected, $message);
     }
 
-    /** @test */
+    #[Test]
     public function can_set_sound_properties_on_message()
     {
         $message = new ExpoMessage([

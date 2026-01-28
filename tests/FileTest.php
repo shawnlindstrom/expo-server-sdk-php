@@ -5,6 +5,7 @@ namespace ExpoSDK\Tests;
 use ExpoSDK\Exceptions\UnableToReadFileException;
 use ExpoSDK\Exceptions\UnableToWriteFileException;
 use ExpoSDK\File;
+use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
 class FileTest extends TestCase
@@ -33,7 +34,7 @@ class FileTest extends TestCase
         @unlink($this->txtPath);
     }
 
-    /** @test */
+    #[Test]
     public function file_class_instantiates()
     {
         $file = new File($this->path);
@@ -41,7 +42,7 @@ class FileTest extends TestCase
         $this->assertInstanceOf(File::class, $file);
     }
 
-    /** @test */
+    #[Test]
     public function throws_exception_for_non_json_file()
     {
         $file = fopen($this->txtPath, "w");
@@ -54,7 +55,7 @@ class FileTest extends TestCase
         new File($this->txtPath);
     }
 
-    /** @test */
+    #[Test]
     public function throws_exception_if_unable_to_read_file()
     {
         $file = fopen($this->testPath, "w");
@@ -67,7 +68,7 @@ class FileTest extends TestCase
         $file->read();
     }
 
-    /** @test */
+    #[Test]
     public function throws_exception_if_unable_to_write_file()
     {
         $file = fopen($this->testPath, "w");

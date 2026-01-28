@@ -1,5 +1,7 @@
 <?php
 
+namespace ExpoSDK\Tests;
+
 use ExpoSDK\Exceptions\ExpoException;
 use ExpoSDK\ExpoClient;
 use ExpoSDK\ExpoMessage;
@@ -7,12 +9,13 @@ use ExpoSDK\ExpoResponse;
 use GuzzleHttp\Handler\MockHandler;
 use GuzzleHttp\HandlerStack;
 use GuzzleHttp\Psr7\Response;
+use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
 class ExpoClientTest extends TestCase
 {
-    /** @test */
-    public function can_send_push_notifications()
+    #[Test]
+    public function can_send_push_notifications(): void
     {
         $data = [
             [
@@ -47,7 +50,7 @@ class ExpoClientTest extends TestCase
         );
     }
 
-    /** @test */
+    #[Test]
     public function throws_exception_if_receipt_count_doesnt_match_ticket_count()
     {
         $data = [
@@ -85,7 +88,7 @@ class ExpoClientTest extends TestCase
         $client->sendPushNotifications([$message]);
     }
 
-    /** @test */
+    #[Test]
     public function throws_exception_if_response_status_code_is_not_200()
     {
         $mock = new MockHandler([
@@ -108,7 +111,7 @@ class ExpoClientTest extends TestCase
         $client->sendPushNotifications([$message]);
     }
 
-    /** @test */
+    #[Test]
     public function an_access_token_can_be_set()
     {
         $token = 'secret';
@@ -125,7 +128,7 @@ class ExpoClientTest extends TestCase
         );
     }
 
-    /** @test */
+    #[Test]
     public function compresses_request_body_if_too_large()
     {
         $data = [
@@ -164,7 +167,7 @@ class ExpoClientTest extends TestCase
         $this->assertInstanceOf(ExpoResponse::class, $response);
     }
 
-    /** @test */
+    #[Test]
     public function throws_exception_if_response_has_errors()
     {
         $data = [
@@ -197,7 +200,7 @@ class ExpoClientTest extends TestCase
         $client->sendPushNotifications([$message]);
     }
 
-    /** @test */
+    #[Test]
     public function can_retrieve_push_notification_receipts()
     {
         $data = [];
@@ -222,7 +225,7 @@ class ExpoClientTest extends TestCase
         $this->assertSame($data, $response->getData());
     }
 
-    /** @test */
+    #[Test]
     public function throws_exception_if_fails_to_retrieve_receipts()
     {
         $ticketId = 'xxxx-xxxx-xxxx';
@@ -241,7 +244,7 @@ class ExpoClientTest extends TestCase
         $client->getPushNotificationReceipts([$ticketId]);
     }
 
-    /** @test */
+    #[Test]
     public function throws_exception_with_malformed_receipt_data()
     {
         $ticketId = 'xxxx-xxxx-xxxx';
