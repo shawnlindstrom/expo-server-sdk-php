@@ -1,26 +1,32 @@
 {
-    "name": "ctwillie/expo-server-sdk-php",
+    "name": "shawnlindstrom/expo-server-sdk-php",
     "description": "Server-side library for working with Expo using PHP",
     "keywords": [
         "expo",
         "php",
+        "push notifications",
         "expo-server-sdk-php"
     ],
-    "homepage": "https://github.com/ctwillie/expo-server-sdk-php",
+    "homepage": "https://github.com/shawnlindstrom/expo-server-sdk-php",
     "license": "MIT",
     "support": {
-        "issues": "https://github.com/ctwillie/expo-server-sdk-php/issues",
-        "source": "https://github.com/ctwillie/expo-server-sdk-php"
+        "issues": "https://github.com/shawnlindstrom/expo-server-sdk-php/issues",
+        "source": "https://github.com/shawnlindstrom/expo-server-sdk-php"
     },
     "authors": [
         {
             "name": "Cedric Twillie",
             "email": "ctwillie77@gmail.com",
             "role": "Developer"
+        },
+        {
+            "name": "Shawn Lindstrom",
+            "email": "shawn@tenerant.com",
+            "role": "Maintainer"
         }
     ],
     "require": {
-        "php": ">=7.3",
+        "php": "^8.4",
         "guzzlehttp/guzzle": "^6|^7",
         "ext-json": "*",
         "ext-zlib": "*"
