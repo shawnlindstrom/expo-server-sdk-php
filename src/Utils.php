@@ -12,7 +12,8 @@ class Utils
     /**
      * Check if a value is a valid Expo push token
      *
-     * @param mixed $value
+     * @param  mixed  $value
+     * @return bool
      */
     public static function isExpoPushToken(mixed $value): bool
     {
@@ -70,13 +71,13 @@ class Utils
      * @param string|string[] $tokens
      *
      * @return string[]
-     *@throws ExpoException
-          * @throws InvalidTokensException
+     * @throws ExpoException
+     * @throws InvalidTokensException
      *
      */
     public static function validateTokens(array|string|null $tokens): array
     {
-        if ($tokens === null || (! is_array($tokens) && ! is_string($tokens))) {
+        if (! is_array($tokens) && ! is_string($tokens)) {
             throw new InvalidTokensException(sprintf(
                 'Tokens must be a string or non empty array, %s given.',
                 gettype($tokens)
