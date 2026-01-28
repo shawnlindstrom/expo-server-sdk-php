@@ -1,8 +1,12 @@
 <?php
 
+declare(strict_types=1);
+
 namespace ExpoSDK;
 
+use ExpoSDK\Exceptions\ExpoException;
 use ExpoSDK\Exceptions\ExpoMessageException;
+use ExpoSDK\Exceptions\InvalidTokensException;
 
 /**
  * Implementation of Expo message request format
@@ -16,7 +20,7 @@ class ExpoMessage
      *
      * @var string[]|null
      */
-    private $to = null;
+    private string|array|null $to = null;
 
     /**
      * A JSON object delivered to your app.
@@ -25,7 +29,7 @@ class ExpoMessage
      *
      * @var object|array|null
      */
-    private $data = null;
+    private array|null|object $data = null;
 
     /**
      * The title to display in the notification.
@@ -33,14 +37,14 @@ class ExpoMessage
      *
      * @var string|null
      */
-    private $title = null;
+    private ?string $title = null;
 
     /**
      * The message to display in the notification.
      *
      * @var string|null
      */
-    private $body = null;
+    private ?string $body = null;
 
     /**
      * Time to Live: the number of seconds for which the message may be kept around for redelivery if it hasn't been delivered yet.
@@ -48,7 +52,7 @@ class ExpoMessage
      *
      * @var int|null
      */
-    private $ttl = null;
+    private ?int $ttl = null;
 
     /**
      * Timestamp since the UNIX epoch specifying when the message expires.
@@ -56,7 +60,7 @@ class ExpoMessage
      *
      * @var int|null
      */
-    private $expiration = null;
+    private ?int $expiration = null;
 
     /**
      * The delivery priority of the message.
@@ -66,7 +70,7 @@ class ExpoMessage
      *
      * @var string
      */
-    private $priority = 'default';
+    private string $priority = 'default';
 
     /**
      * The subtitle to display in the notification below the title.
@@ -75,7 +79,7 @@ class ExpoMessage
      *
      * @var string|null
      */
-    private $subtitle = null;
+    private ?string $subtitle = null;
 
     /**
      * Play a sound when the recipient receives this notification.
@@ -86,7 +90,7 @@ class ExpoMessage
      *
      * @var string|null
      */
-    private $sound = null;
+    private ?string $sound = null;
 
     /**
      * Number to display in the badge on the app icon.
@@ -96,7 +100,7 @@ class ExpoMessage
      *
      * @var numeric|null
      */
-    private $badge = null;
+    private string|int|null|float $badge = null;
 
     /**
      * ID of the Notification Channel through which to display this notification.
@@ -107,7 +111,7 @@ class ExpoMessage
      *
      * @var string|null
      */
-    private $channelId = null;
+    private ?string $channelId = null;
 
     /**
      * ID of the notification category that this notification is associated with.
@@ -117,7 +121,7 @@ class ExpoMessage
      *
      * @var string|null
      */
-    private $categoryId = null;
+    private ?string $categoryId = null;
 
     /**
      * Specifies whether this notification can be intercepted by the client app.
@@ -128,7 +132,7 @@ class ExpoMessage
      *
      * @var bool
      */
-    private $mutableContent = false;
+    private bool $mutableContent = false;
 
     /**
      * Used to handle notifications while the app is in the background on iOS.
@@ -139,7 +143,7 @@ class ExpoMessage
      *
      * @var bool
      */
-    private $_contentAvailable = false;
+    private bool $_contentAvailable = false;
 
     public function __construct(array $attributes = [])
     {
@@ -160,16 +164,16 @@ class ExpoMessage
     /**
      * Set recipients of the message
      *
-     * @see to
-     *
-     * @throws \ExpoSDK\Exceptions\ExpoException
-     * @throws \ExpoSDK\Exceptions\InvalidTokensException
-     *
-     * @param  string[]|string  $tokens
+     * @param  string|string[]  $tokens
      *
      * @return $this
+     *@throws ExpoException
+     * @throws InvalidTokensException
+     *
+     * @see to
+     *
      */
-    public function setTo($tokens): self
+    public function setTo(array|string $tokens): self
     {
         $this->to = Utils::validateTokens($tokens);
 
@@ -179,15 +183,15 @@ class ExpoMessage
     /**
      * Sets the data for the message
      *
-     * @see data
-     *
-     * @throws ExpoMessageException
-     *
-     * @param  mixed  $data
+     * @param  mixed|null  $data
      *
      * @return $this
+     *@throws ExpoMessageException
+     *
+     * @see data
+     *
      */
-    public function setData($data = null): self
+    public function setData(mixed $data = null): self
     {
         if (gettype($data) === 'array' && empty($data)) {
             $data = new \stdClass();

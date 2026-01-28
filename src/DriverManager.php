@@ -1,29 +1,26 @@
 <?php
 
+declare(strict_types=1);
+
 namespace ExpoSDK;
 
+use ExpoSDK\Drivers\Driver;
 use ExpoSDK\Drivers\FileDriver;
 use ExpoSDK\Exceptions\InvalidTokensException;
 use ExpoSDK\Exceptions\UnsupportedDriverException;
 
 class DriverManager
 {
-    /**
-     * @var array
-     */
-    private $supportedDrivers = [
+    private array $supportedDrivers = [
         'file',
     ];
 
-    /**
-     * @var string
-     */
-    private $driverKey;
+    private string $driverKey;
 
     /**
      * @var Driver
      */
-    private $driver;
+    private Driver $driver;
 
     public function __construct(string $driver, array $config = [])
     {
@@ -65,7 +62,7 @@ class DriverManager
      *
      * @param null|string|array $tokens
      */
-    public function subscribe(string $channel, $tokens): bool
+    public function subscribe(string $channel, array|string|null $tokens): bool
     {
         return $this->driver->store(
             $this->normalizeChannel($channel),
@@ -78,7 +75,7 @@ class DriverManager
      *
      * @return array|null
      */
-    public function getSubscriptions(string $channel)
+    public function getSubscriptions(string $channel): ?array
     {
         return $this->driver->retrieve(
             $this->normalizeChannel($channel)
@@ -88,9 +85,9 @@ class DriverManager
     /**
      * Unsubscribes tokens from a channel
      *
-     * @param null|string|array $tokens
+     * @param  array|string|null  $tokens
      */
-    public function unsubscribe(string $channel, $tokens): bool
+    public function unsubscribe(string $channel, array|string|null $tokens): bool
     {
         return $this->driver->forget(
             $this->normalizeChannel($channel),
@@ -109,10 +106,10 @@ class DriverManager
     /**
      * Normalizes tokens to be an array
      *
-     * @param string|array $tokens
+     * @param  array|string  $tokens
      * @throws InvalidTokensException
      */
-    private function normalizeTokens($tokens): array
+    private function normalizeTokens(array|string|null $tokens): array
     {
         if (is_array($tokens) && count($tokens) > 0) {
             return $tokens;

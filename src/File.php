@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace ExpoSDK;
 
 use ExpoSDK\Exceptions\FileDoesntExistException;
@@ -10,7 +12,7 @@ use ExpoSDK\Exceptions\UnableToWriteFileException;
 class File
 {
     /** @var string */
-    private $path;
+    private string $path;
 
     public function __construct(string $path)
     {
@@ -24,9 +26,7 @@ class File
         }
 
         if (! $this->isJson($path)) {
-            throw new InvalidFileException(sprintf(
-                'The storage file must have a .json extension.'
-            ));
+            throw new InvalidFileException('The storage file must have a .json extension.');
         }
 
         $this->validateContents();
@@ -66,7 +66,7 @@ class File
      * @return object|null
      * @throws UnableToReadFileException
      */
-    public function read()
+    public function read(): ?object
     {
         $contents = @file_get_contents($this->path);
 

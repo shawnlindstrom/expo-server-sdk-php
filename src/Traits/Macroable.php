@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace ExpoSDK\Traits;
 
 use BadMethodCallException;
@@ -12,7 +14,7 @@ use ReflectionMethod;
  */
 trait Macroable
 {
-    protected static $macros = [];
+    protected static array $macros = [];
 
     public static function macro(string $name, callable $macro): void
     {
@@ -21,7 +23,7 @@ trait Macroable
 
     public static function mixin($mixin): void
     {
-        $methods = (new ReflectionClass($mixin))->getMethods(
+        $methods = new ReflectionClass($mixin)->getMethods(
             ReflectionMethod::IS_PUBLIC | ReflectionMethod::IS_PROTECTED
         );
 

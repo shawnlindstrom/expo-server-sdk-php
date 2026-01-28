@@ -1,26 +1,25 @@
 <?php
 
+declare(strict_types=1);
+
 namespace ExpoSDK;
 
 use ExpoSDK\Exceptions\ExpoException;
 use GuzzleHttp\Client;
+use GuzzleHttp\Exception\GuzzleException;
 
 class ExpoClient
 {
-    public const EXPO_BASE_URL = 'https://exp.host/--/api/v2';
+    public const string EXPO_BASE_URL = 'https://exp.host/--/api/v2';
 
     /**
      * The Expo access token
-     *
-     * @var string
      */
-    private $accessToken = null;
+    private ?string $accessToken = null;
 
-    /** @var Client */
-    private $client;
+    private Client $client;
 
-    /** @var ExpoErrorManager */
-    private $errors;
+    private ExpoErrorManager $errors;
 
     public function __construct(array $options = [])
     {
@@ -80,7 +79,7 @@ class ExpoClient
     /**
      * Retrieves push notification receipts from the Expo api
      *
-     * @throws ExpoException
+     * @throws ExpoException|GuzzleException
      */
     public function getPushNotificationReceipts(array $ticketIds): ExpoResponse
     {
@@ -107,7 +106,7 @@ class ExpoClient
             ));
         }
 
-        $result = json_decode($response->getBody(), true);
+        $result = json_decode((string) $response->getBody(), true);
 
         if (! array_key_exists('data', $result) || ! is_array($result['data'])) {
             throw new ExpoException(

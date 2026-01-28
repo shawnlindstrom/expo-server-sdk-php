@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace ExpoSDK;
 
 use ExpoSDK\Exceptions\ExpoException;
@@ -12,7 +14,7 @@ class Utils
      *
      * @param mixed $value
      */
-    public static function isExpoPushToken($value): bool
+    public static function isExpoPushToken(mixed $value): bool
     {
         if (! is_string($value) || strlen($value) < 15) {
             return false;
@@ -24,7 +26,7 @@ class Utils
     }
 
     /**
-     * Determine if an array is an asociative array
+     * Determine if an array is an associative array
      *
      * The check determines if the array has sequential numeric
      * keys. If it does not, it is considered an associative array.
@@ -39,8 +41,7 @@ class Utils
      */
     public static function strStartsWith(string $haystack, string $needle): bool
     {
-        return (string)$needle !== '' &&
-            strncmp($haystack, $needle, strlen($needle)) === 0;
+        return $needle !== '' && str_starts_with($haystack, $needle);
     }
 
     /**
@@ -48,8 +49,7 @@ class Utils
      */
     public static function strEndsWith(string $haystack, string $needle): bool
     {
-        return $needle !== '' &&
-            substr($haystack, -strlen($needle)) === (string) $needle;
+        return $needle !== '' && str_ends_with($haystack, $needle);
     }
 
     /**
@@ -59,7 +59,7 @@ class Utils
      *
      * @return array
      */
-    public static function arrayWrap($data): array
+    public static function arrayWrap(mixed $data): array
     {
         return is_array($data) ? $data : [$data];
     }
@@ -67,16 +67,16 @@ class Utils
     /**
      * Validates and filters tokens for later use
      *
-     * @throws \ExpoSDK\Exceptions\ExpoException
-     * @throws \ExpoSDK\Exceptions\InvalidTokensException
-     *
-     * @param string[]|string $tokens
+     * @param string|string[] $tokens
      *
      * @return string[]
+     *@throws ExpoException
+          * @throws InvalidTokensException
+     *
      */
-    public static function validateTokens($tokens): array
+    public static function validateTokens(array|string|null $tokens): array
     {
-        if (! is_array($tokens) && ! is_string($tokens)) {
+        if ($tokens === null || (! is_array($tokens) && ! is_string($tokens))) {
             throw new InvalidTokensException(sprintf(
                 'Tokens must be a string or non empty array, %s given.',
                 gettype($tokens)

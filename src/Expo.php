@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace ExpoSDK;
 
 use Closure;
@@ -14,26 +16,26 @@ class Expo
     /**
      * @var DriverManager
      */
-    private $manager;
+    private ?DriverManager $manager;
 
     /**
      * @var ExpoClient
      */
-    private $client;
+    private ExpoClient $client;
 
     /**
      * Messages to send
      *
      * @var ExpoMessage[]
      */
-    private $messages = [];
+    private array $messages = [];
 
     /**
      * Default tokens to send the message to (if they don't have their own respective recipients)
      *
-     * @var array
+     * @var array|null
      */
-    private $recipients = null;
+    private ?array $recipients = null;
 
     public function __construct(?DriverManager $manager = null, array $clientOptions = [])
     {
@@ -63,11 +65,11 @@ class Expo
     /**
      * Subscribes tokens to a channel
      *
-     * @param string|array $tokens
-     * @return mixed
+     * @param  array|string|null  $tokens
+     * @return bool
      * @throws ExpoException
      */
-    public function subscribe(string $channel, $tokens = null)
+    public function subscribe(string $channel, array|string|null $tokens = null): bool
     {
         if ($this->manager) {
             return $this->manager->subscribe($channel, $tokens);
@@ -79,11 +81,11 @@ class Expo
     /**
      * Unsubscribes tokens from a channel
      *
-     * @param string|array $tokens
-     * @return mixed
+     * @param  array|string|null  $tokens
+     * @return bool
      * @throws ExpoException
     */
-    public function unsubscribe(string $channel, $tokens = null)
+    public function unsubscribe(string $channel, array|string|null $tokens = null): bool
     {
         if ($this->manager) {
             return $this->manager->unsubscribe($channel, $tokens);
@@ -108,7 +110,7 @@ class Expo
      * @return array|null
      * @throws ExpoException
      */
-    public function getSubscriptions(string $channel)
+    public function getSubscriptions(string $channel): ?array
     {
         if ($this->manager) {
             return $this->manager->getSubscriptions($channel);
@@ -138,7 +140,7 @@ class Expo
      *
      * @param mixed $value
      */
-    public function isExpoPushToken($value): bool
+    public function isExpoPushToken(mixed $value): bool
     {
         return Utils::isExpoPushToken($value);
     }
@@ -148,7 +150,7 @@ class Expo
      *
      * @return array|null
      */
-    public function getRecipients()
+    public function getRecipients(): ?array
     {
         return $this->recipients;
     }
@@ -158,7 +160,7 @@ class Expo
      *
      * @return array|null
      */
-    public function getMessages()
+    public function getMessages(): ?array
     {
         return $this->messages;
     }
@@ -166,9 +168,9 @@ class Expo
     /**
      * Sets the messages to send
      *
-     * @param ExpoMessage[]|ExpoMessage|array $message
+     * @param  array|ExpoMessage|ExpoMessage[]  $message
      */
-    public function send($message): self
+    public function send(array|ExpoMessage $message): self
     {
         $messages = Utils::arrayWrap($message);
 
@@ -192,11 +194,11 @@ class Expo
     /**
      * Sets the default recipients
      *
-     * @param string|array $recipients
+     * @param  array|string|null  $recipients
      * @throws InvalidTokensException
      * @throws ExpoException
      */
-    public function to($recipients = null): self
+    public function to(array|string|null $recipients = null): self
     {
         $this->recipients = Utils::validateTokens($recipients);
 

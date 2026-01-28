@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace ExpoSDK\Drivers;
 
 use ExpoSDK\File;
@@ -11,14 +13,14 @@ class FileDriver extends Driver
      *
      * @var string
      */
-    private $path = __DIR__ . '/../storage/expo.json';
+    private string $path = __DIR__ . '/../storage/expo.json';
 
     /**
      * The storage file object
      *
      * @var File
      */
-    private $file;
+    private File $file;
 
     public function __construct(array $config)
     {
@@ -54,7 +56,7 @@ class FileDriver extends Driver
      *
      * @return array|null
      */
-    public function retrieve(string $channel)
+    public function retrieve(string $channel): ?array
     {
         $store = $this->file->read();
 
