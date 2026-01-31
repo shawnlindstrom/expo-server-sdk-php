@@ -396,7 +396,7 @@ class ExpoTest extends TestCase
         $handlerStack = HandlerStack::create($mock);
 
         $unregistered = [];
-        Expo::addDevicesNotRegisteredHandler(function ($tokens) use ($unregistered) {
+        Expo::addDevicesNotRegisteredHandler(function (array $tokens) use (&$unregistered) {
             foreach ($tokens as $token) {
                 $unregistered[] = $token;
             }
@@ -415,6 +415,7 @@ class ExpoTest extends TestCase
         $response = $expo->send($message)->push();
 
         $this->assertSame(200, $response->getStatusCode());
+        $this->assertSame([$token], $unregistered);
     }
 
     #[Test]
@@ -443,5 +444,86 @@ class ExpoTest extends TestCase
         $response = $expo->getReceipts([$ticketId]);
 
         $this->assertEquals(200, $response->getStatusCode());
+    }
+
+
+    #[Test]
+    public function register_devices_not_registered_handler_with_expo_push_token_in_details()
+    {
+        $token = 'ExpoPushToken[xxxx]';
+        $data = [
+            [
+                "status" => "error",
+                "message" => "'{$token}' is not a registered push notification recipient",
+                "details" => [
+                    "error" => "DeviceNotRegistered",
+                    "expoPushToken" => $token,
+                ],
+            ],
+        ];
+
+        $mock = new MockHandler([
+            new Response(200, [], json_encode([
+                'data' => $data,
+            ])),
+        ]);
+
+        $handlerStack = HandlerStack::create($mock);
+
+        $unregistered = [];
+        Expo::addDevicesNotRegisteredHandler(function (array $tokens) use (&$unregistered) {
+            foreach ($tokens as $token) {
+                $unregistered[] = $token;
+            }
+        });
+
+        $expo = new Expo(null, [
+            'handler' => $handlerStack,
+            'http_errors' => false,
+        ]);
+
+        $message = new ExpoMessage([
+            'title' => 'Title',
+            'to' => $token,
+        ]);
+
+        $response = $expo->send($message)->push();
+
+        $this->assertSame(200, $response->getStatusCode());
+        $this->assertSame([$token], $unregistered);
+    }
+
+    #[Test]
+    public function push_uses_message_to_when_both_default_and_message_recipients_exist()
+    {
+        $defaultToken = 'ExpoPushToken[default]';
+        $messageToken = 'ExpoPushToken[message]';
+
+        $mock = new MockHandler([
+            new Response(200, [], json_encode([
+                'data' => [
+                    ['id' => 'xxx', 'status' => 'ok'],
+                ],
+            ])),
+        ]);
+
+        $handlerStack = HandlerStack::create($mock);
+        $expo = new Expo(null, [
+            'handler' => $handlerStack,
+            'http_errors' => false,
+        ]);
+
+        // Set default recipients
+        $expo->to($defaultToken);
+
+        // Message has its own recipients - should use message recipients, not default
+        $message = new ExpoMessage([
+            'title' => 'Test',
+            'to' => $messageToken,
+        ]);
+
+        $response = $expo->send($message)->push();
+
+        $this->assertSame(200, $response->getStatusCode());
     }
 }
