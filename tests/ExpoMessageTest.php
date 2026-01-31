@@ -3,17 +3,41 @@
 namespace ExpoSDK\Tests;
 
 use ExpoSDK\ExpoMessage;
+use ExpoSDK\Exceptions\ExpoMessageException;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
+use stdClass;
 
 class ExpoMessageTest extends TestCase
 {
     #[Test]
+    public function constructor_accepts_content_available_without_leading_underscore()
+    {
+        $message = new ExpoMessage([
+            'contentAvailable' => true,
+        ]);
+
+        $this->assertSame(
+            [
+                'priority' => 'default',
+                'mutableContent' => false,
+                '_contentAvailable' => true,
+            ],
+            $message->toArray()
+        );
+    }
+
+    #[Test]
     public function an_expo_message_can_be_instantiated()
     {
-        $message = new ExpoMessage();
-
-        $this->assertInstanceOf(ExpoMessage::class, $message);
+        $this->assertSame(
+            [
+                'priority' => 'default',
+                'mutableContent' => false,
+                '_contentAvailable' => false,
+            ],
+            new ExpoMessage()->toArray()
+        );
     }
 
     #[Test]
@@ -64,11 +88,27 @@ class ExpoMessageTest extends TestCase
     }
 
     #[Test]
-    public function throws_exception_if_data_is_not_null_object_or_assoc_array()
+    public function throws_exception_if_data_is_a_list_array()
     {
         $message = new ExpoMessage();
         $data = ['foo'];
 
+        $this->expectException(ExpoMessageException::class);
+        $this->expectExceptionMessage(sprintf(
+            'Message data must be either an associative array, object or null. %s given',
+            gettype($data)
+        ));
+
+        $message->setData($data);
+    }
+
+    #[Test]
+    public function throws_exception_if_data_is_a_scalar()
+    {
+        $message = new ExpoMessage();
+        $data = 'foo';
+
+        $this->expectException(ExpoMessageException::class);
         $this->expectExceptionMessage(sprintf(
             'Message data must be either an associative array, object or null. %s given',
             gettype($data)
@@ -80,19 +120,19 @@ class ExpoMessageTest extends TestCase
     #[Test]
     public function can_create_message_from_array()
     {
-        $message = (new ExpoMessage([
+        $message = new ExpoMessage([
             'title' => 'test title',
             'body' => 'test body',
             'data' => [],
             'to' => ['ExponentPushToken[valid-token]', 'invalid-token]'],
             '_contentAvailable' => false,
-        ]))->toArray();
+        ])->toArray();
         $expected = [
             'mutableContent' => false,
             'priority' => 'default',
             'title' => 'test title',
             'body' => 'test body',
-            'data' => new \stdClass(),
+            'data' => new stdClass(),
             'to' => ['ExponentPushToken[valid-token]'],
             '_contentAvailable' => false,
         ];
@@ -119,9 +159,59 @@ class ExpoMessageTest extends TestCase
 
         $this->assertEquals($expected, $message->toArray());
 
+        $message->setSound('beep');
+        $expected['sound'] = 'beep';
+
+        $this->assertEquals($expected, $message->toArray());
+
+        $message->setSound(null);
+        unset($expected['sound']);
+
+        $this->assertEquals($expected, $message->toArray());
+
         $message->playSound();
         $expected['sound'] = 'default';
 
         $this->assertEquals($expected, $message->toArray());
+    }
+
+    #[Test]
+    public function can_set_data_to_null()
+    {
+        $message = new ExpoMessage([
+            'data' => ['foo' => 'bar'],
+        ]);
+
+        $message->setData(null);
+
+        $result = $message->toArray();
+        $this->assertArrayNotHasKey('data', $result);
+    }
+
+    #[Test]
+    public function can_set_data_to_object()
+    {
+        $message = new ExpoMessage();
+
+        $obj = new stdClass();
+        $obj->foo = 'bar';
+
+        $message->setData($obj);
+
+        $result = $message->toArray();
+        $this->assertEquals($obj, $result['data']);
+    }
+
+    #[Test]
+    public function throws_exception_if_data_is_integer()
+    {
+        $message = new ExpoMessage();
+
+        $this->expectException(ExpoMessageException::class);
+        $this->expectExceptionMessage(
+            'Message data must be either an associative array, object or null. integer given'
+        );
+
+        $message->setData(42);
     }
 }
