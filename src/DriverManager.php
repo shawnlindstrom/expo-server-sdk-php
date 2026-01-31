@@ -6,8 +6,6 @@ namespace ExpoSDK;
 
 use ExpoSDK\Drivers\Driver;
 use ExpoSDK\Drivers\FileDriver;
-use ExpoSDK\Exceptions\FileDoesntExistException;
-use ExpoSDK\Exceptions\InvalidFileException;
 use ExpoSDK\Exceptions\InvalidTokensException;
 use ExpoSDK\Exceptions\UnsupportedDriverException;
 
@@ -30,8 +28,8 @@ class DriverManager
     private Driver $driver;
 
     /**
-     * @throws FileDoesntExistException
-     * @throws InvalidFileException
+     * @param  string  $driver
+     * @param  array  $config
      * @throws UnsupportedDriverException
      */
     public function __construct(string $driver, array $config = [])
@@ -43,6 +41,7 @@ class DriverManager
     /**
      * Validates the driver against supported drivers
      *
+     * @param  string  $driver
      * @throws UnsupportedDriverException
      */
     private function validateDriver(string $driver): self
@@ -63,8 +62,7 @@ class DriverManager
     /**
      * Builds the driver instance using the driver registry
      *
-     * @throws FileDoesntExistException
-     * @throws InvalidFileException
+     * @param  array  $config
      */
     private function buildDriver(array $config): void
     {
@@ -119,6 +117,9 @@ class DriverManager
 
     /**
      * Normalizes the channel name
+     *
+     * @param  string  $channel
+     * @return string
      */
     private function normalizeChannel(string $channel): string
     {

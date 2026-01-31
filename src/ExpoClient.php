@@ -41,6 +41,8 @@ class ExpoClient
     /**
      * Sends push notification messages to the Expo api
      *
+     * @param  array  $messages
+     * @return ExpoResponse
      * @throws GuzzleException|ExpoException
      */
     public function sendPushNotifications(array $messages): ExpoResponse
@@ -91,6 +93,8 @@ class ExpoClient
     /**
      * Retrieves push notification receipts from the Expo api
      *
+     * @param  array  $ticketIds
+     * @return ExpoResponse
      * @throws ExpoException|GuzzleException
      */
     public function getPushNotificationReceipts(array $ticketIds): ExpoResponse
@@ -138,6 +142,9 @@ class ExpoClient
 
     /**
      * Set the Expo access token
+     *
+     * @param string $accessToken
+     * @return void
      */
     public function setAccessToken(string $accessToken): void
     {
@@ -146,6 +153,8 @@ class ExpoClient
 
     /**
      * Get the clients request headers
+     *
+     * @return array
      */
     private function getDefaultHeaders(): array
     {
@@ -165,6 +174,9 @@ class ExpoClient
 
     /**
      * Compresses a string if it exceeds the compression threshold
+     *
+     * @param array $value
+     * @return array
      */
     private function compressBody(array $value): array
     {
@@ -181,6 +193,9 @@ class ExpoClient
 
     /**
      * Gets the actual message count
+     *
+     * @param array $messages
+     * @return int
      */
     private function getActualMessageCount(array $messages): int
     {

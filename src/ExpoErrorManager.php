@@ -12,6 +12,9 @@ class ExpoErrorManager
 {
     /**
      * Parses an error response from expo
+     *
+     * @param  ResponseInterface  $response
+     * @return ExpoException
      */
     public function parseErrorResponse(ResponseInterface $response): ExpoException
     {
@@ -33,6 +36,10 @@ class ExpoErrorManager
 
     /**
      * Constructs an exception from the response text
+     *
+     * @param  string  $errorText
+     * @param  int  $statusCode
+     * @return ExpoException
      */
     public function getTextResponseError(string $errorText, int $statusCode): ExpoException
     {
@@ -45,6 +52,10 @@ class ExpoErrorManager
 
     /**
      * Returns an exception for the first API error from the expo response
+     *
+     * @param  array  $response
+     * @param  int  $statusCode
+     * @return ExpoException
      */
     public function getErrorFromResult(array $response, int $statusCode): ExpoException
     {
@@ -68,7 +79,10 @@ class ExpoErrorManager
     }
 
     /**
-     * Determine if the json decoded response has errors present
+     * Determine if the JSON decoded response has errors present
+     *
+     * @param  array  $response
+     * @return bool
      */
     public function responseHasErrors(array $response): bool
     {

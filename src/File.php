@@ -44,6 +44,9 @@ class File
 
     /**
      * Check if the file path is valid and exists
+     *
+     * @param  string  $path
+     * @return bool
      */
     private function isValidPath(string $path): bool
     {
@@ -52,6 +55,9 @@ class File
 
     /**
      * Check if the file has a JSON extension
+     *
+     * @param  string  $path
+     * @return bool
      */
     private function isJson(string $path): bool
     {
@@ -60,6 +66,8 @@ class File
 
     /**
      * Ensures the file contains an object
+     *
+     * @return void
      * @throws JsonException
      * @throws UnableToReadFileException
      * @throws UnableToWriteFileException
@@ -142,6 +150,8 @@ class File
     /**
      * Writes content to the file
      *
+     * @param  object  $contents
+     * @return bool
      * @throws UnableToWriteFileException
      * @throws JsonException
      */
@@ -169,6 +179,7 @@ class File
     /**
      * Empties the files contents
      *
+     * @return void
      * @throws UnableToWriteFileException
      * @throws JsonException
      */

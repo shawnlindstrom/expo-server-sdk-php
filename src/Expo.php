@@ -6,8 +6,6 @@ namespace ExpoSDK;
 
 use Closure;
 use ExpoSDK\Exceptions\ExpoException;
-use ExpoSDK\Exceptions\FileDoesntExistException;
-use ExpoSDK\Exceptions\InvalidFileException;
 use ExpoSDK\Exceptions\InvalidTokensException;
 use ExpoSDK\Exceptions\UnsupportedDriverException;
 use ExpoSDK\Traits\Macroable;
@@ -50,6 +48,9 @@ class Expo
 
     /**
      * Registers macro for handling all tokens with DeviceNotRegistered errors
+     *
+     * @param Closure $callback
+     * @return void
      */
     public static function addDevicesNotRegisteredHandler(Closure $callback): void
     {
@@ -59,8 +60,9 @@ class Expo
     /**
      * Builds an expo instance
      *
-     * @throws FileDoesntExistException
-     * @throws InvalidFileException
+     * @param  string  $driver
+     * @param  array  $config
+     * @return Expo
      * @throws UnsupportedDriverException
      */
     public static function driver(string $driver = 'file', array $config = []): self
@@ -73,6 +75,9 @@ class Expo
     /**
      * Subscribes tokens to a channel
      *
+     * @param  string  $channel
+     * @param  null|string|array  $tokens
+     * @return bool
      * @throws ExpoException
      * @throws InvalidTokensException
      */
@@ -88,6 +93,9 @@ class Expo
     /**
      * Unsubscribes tokens from a channel
      *
+     * @param  string  $channel
+     * @param  array|string|null  $tokens
+     * @return bool
      * @throws ExpoException|InvalidTokensException
      */
     public function unsubscribe(string $channel, array|string|null $tokens = null): bool
@@ -101,6 +109,9 @@ class Expo
 
     /**
      * Set the recipients from channel subscriptions to send the message to
+     *
+     * @param string $channel
+     * @return $this
      * @throws ExpoException
      */
     public function toChannel(string $channel): self
@@ -113,6 +124,8 @@ class Expo
     /**
      * Retrieves a channels subscriptions
      *
+     * @param  string  $channel
+     * @return array|null
      * @throws ExpoException
      */
     public function getSubscriptions(string $channel): ?array
@@ -127,6 +140,8 @@ class Expo
     /**
      * Checks if a channel has subscriptions
      *
+     * @param  string  $channel
+     * @return bool
      * @throws ExpoException
      */
     public function hasSubscriptions(string $channel): bool
@@ -143,6 +158,8 @@ class Expo
     /**
      * Check if a value is a valid Expo push token
      *
+     * @param  mixed  $value
+     * @return bool
      */
     public function isExpoPushToken(mixed $value): bool
     {
@@ -173,6 +190,7 @@ class Expo
      * Sets the messages to send
      *
      * @param  array|ExpoMessage|ExpoMessage[]  $message
+     * @return $this
      * @throws ExpoException
      */
     public function send(array|ExpoMessage $message): self
@@ -199,6 +217,8 @@ class Expo
     /**
      * Sets the default recipients
      *
+     * @param  array|string|null  $recipients
+     * @return $this
      * @throws InvalidTokensException
      * @throws ExpoException
      */
@@ -212,6 +232,7 @@ class Expo
     /**
      * Send the messages to the expo server
      *
+     * @return ExpoResponse
      * @throws ExpoException
      * @throws GuzzleException
      */
@@ -289,6 +310,8 @@ class Expo
     /**
      * Fetches the push notification receipts from the expo server
      *
+     * @param  array  $ticketIds
+     * @return ExpoResponse
      * @throws ExpoException|GuzzleException
      */
     public function getReceipts(array $ticketIds): ExpoResponse
@@ -302,6 +325,9 @@ class Expo
 
     /**
      * Set the Expo access token
+     *
+     * @param string $accessToken
+     * @return $this
      */
     public function setAccessToken(string $accessToken): self
     {
@@ -312,6 +338,8 @@ class Expo
 
     /**
      * Resets the instance data
+     *
+     * @return void
      */
     public function reset(): void
     {

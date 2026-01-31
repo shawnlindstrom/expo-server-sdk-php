@@ -26,6 +26,8 @@ class ExpoResponse
 
     /**
      * Checks if the request succeeded
+     *
+     * @return bool
      */
     public function ok(): bool
     {
@@ -35,6 +37,8 @@ class ExpoResponse
 
     /**
      * Get the http response status code
+     *
+     * @return int
      */
     public function getStatusCode(): int
     {

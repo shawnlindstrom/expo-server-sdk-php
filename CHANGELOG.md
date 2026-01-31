@@ -11,6 +11,6 @@ All notable changes to `expo-server-sdk-php` will be documented in this file.
 - Minimum supported PHP version is now 8.4.
 - Upgraded PHPUnit to 12.
 
-## 1.0.0 - 202X-XX-XX
+## 1.0.0 - 2026-01-31
 
 - initial release

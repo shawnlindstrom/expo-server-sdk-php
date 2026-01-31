@@ -9,6 +9,7 @@ use ExpoSDK\Exceptions\InvalidFileException;
 use ExpoSDK\Exceptions\UnableToReadFileException;
 use ExpoSDK\Exceptions\UnableToWriteFileException;
 use ExpoSDK\File;
+use JsonException;
 
 class FileDriver extends Driver
 {
@@ -27,8 +28,12 @@ class FileDriver extends Driver
     private File $file;
 
     /**
+     * @param  array  $config
      * @throws FileDoesntExistException
      * @throws InvalidFileException
+     * @throws UnableToReadFileException
+     * @throws UnableToWriteFileException
+     * @throws JsonException
      */
     public function __construct(array $config)
     {
@@ -38,8 +43,12 @@ class FileDriver extends Driver
     /**
      * Builds the driver instance
      *
+     * @param  array  $config
      * @throws FileDoesntExistException
      * @throws InvalidFileException
+     * @throws UnableToReadFileException
+     * @throws UnableToWriteFileException
+     * @throws JsonException
      */
     protected function build(array $config): void
     {
@@ -54,7 +63,13 @@ class FileDriver extends Driver
 
     /**
      * Stores tokens for a channel
-     * @throws UnableToReadFileException|UnableToWriteFileException
+     *
+     * @param  string  $channel
+     * @param  array  $tokens
+     * @return bool
+     * @throws JsonException
+     * @throws UnableToReadFileException
+     * @throws UnableToWriteFileException
      */
     public function store(string $channel, array $tokens): bool
     {
@@ -70,6 +85,8 @@ class FileDriver extends Driver
     /**
      * Retrieves a channels subscriptions
      *
+     * @param  string  $channel
+     * @return array|null
      * @throws UnableToReadFileException
      */
     public function retrieve(string $channel): ?array
@@ -82,7 +99,12 @@ class FileDriver extends Driver
     /**
      * Removes subscriptions from a channel\
      *
-     * @throws UnableToReadFileException|UnableToWriteFileException
+     * @param  string  $channel
+     * @param  array  $tokens
+     * @return bool
+     * @throws JsonException
+     * @throws UnableToReadFileException
+     * @throws UnableToWriteFileException
      */
     public function forget(string $channel, array $tokens): bool
     {

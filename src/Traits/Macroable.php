@@ -11,10 +11,15 @@ use ReflectionException;
 use ReflectionMethod;
 
 /**
- * @see https://github.com/spatie/macroable/blob/main/src/Macroable.php Source code at Laravel's GitHub
+ * @see https://github.com/spatie/macroable/blob/main/src/Macroable.php
  */
 trait Macroable
 {
+    /*
+     * The class macros.
+     *
+     * @var array
+     */
     protected static array $macros = [];
 
     /**

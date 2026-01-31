@@ -39,6 +39,9 @@ final class Utils
      *
      * The check determines if the array has sequential numeric
      * keys. If it does not, it is considered an associative array.
+     *
+     * @param array $arr
+     * @return bool
      */
     public static function isAssoc(array $arr): bool
     {
@@ -47,6 +50,10 @@ final class Utils
 
     /**
      * Check if a string starts with another
+     *
+     * @param string $haystack
+     * @param string $needle
+     * @return bool
      */
     public static function strStartsWith(string $haystack, string $needle): bool
     {
@@ -55,6 +62,10 @@ final class Utils
 
     /**
      * Check if a string ends with another
+     *
+     * @param string $haystack
+     * @param string $needle
+     * @return bool
      */
     public static function strEndsWith(string $haystack, string $needle): bool
     {
@@ -65,7 +76,6 @@ final class Utils
      * Wrap data in the array if data is not an array
      *
      * @param mixed $data
-     *
      * @return array
      */
     public static function arrayWrap(mixed $data): array
@@ -77,7 +87,6 @@ final class Utils
      * Validates and filters tokens for later use
      *
      * @param string|string[] $tokens
-     *
      * @return string[]
      * @throws ExpoException
      * @throws InvalidTokensException

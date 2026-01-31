@@ -17,8 +17,7 @@ abstract class Driver
     abstract public function store(string $channel, array $tokens): bool;
 
     /**
-     * Retrieves a channels subscriptions
-     *
+     * Retrieves a channels subscriptions     *
      */
     abstract public function retrieve(string $channel): ?array;
 

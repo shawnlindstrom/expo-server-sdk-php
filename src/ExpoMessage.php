@@ -25,7 +25,7 @@ class ExpoMessage
 
     /**
      * A JSON object delivered to your app.
-     * It may be up to about 4KiB; the total notification payload sent to Apple and Google must be at most 4KiB
+     * It may be up to about 4KiB; the total notification payload sent to Apple and Google must be at most 4KiB,
      * or else you will get a "Message Too Big" error.
      *
      * @var object|array|null
@@ -48,8 +48,9 @@ class ExpoMessage
     private ?string $body = null;
 
     /**
-     * Time to Live: the number of seconds for which the message may be kept around for redelivery if it hasn't been delivered yet.
-     * Defaults to null in order to use the respective defaults of each provider (0 for iOS/APNs and 2419200 (4 weeks) for Android/FCM).
+     * Time to Live: the number of seconds for which the message may be kept around for redelivery if it hasn't been
+     * delivered yet. Defaults to null to use the respective defaults of each provider (0 for iOS/APNs and 2,419,200
+     * (4 weeks) for Android/FCM).
      *
      * @var int|null
      */
@@ -65,7 +66,8 @@ class ExpoMessage
 
     /**
      * The delivery priority of the message.
-     * Specify "default" or omit this field to use the default priority on each platform ("normal" on Android and "high" on iOS).
+     * Specify "default" or omit this field to use the default priority on each platform ("normal" on Android and
+     * "high" on iOS).
      *
      * Supported: 'default', 'normal', 'high'.
      *
@@ -105,8 +107,8 @@ class ExpoMessage
 
     /**
      * ID of the Notification Channel through which to display this notification.
-     * If an ID is specified but the corresponding channel does not exist on the device (i.e. has not yet been created by your app),
-     * the notification will not be displayed to the user.
+     * If an ID is specified but the corresponding channel does not exist on the device (i.e., has not yet been created
+     * by your app), the notification will not be displayed to the user.
      *
      * Android only.
      *
@@ -125,7 +127,7 @@ class ExpoMessage
     private ?string $categoryId = null;
 
     /**
-     * Specifies whether this notification can be intercepted by the client app.
+     * Specifies whether the client app can intercept this notification.
      * In Expo Go, this defaults to true, and if you change that to false, you may experience issues.
      * In standalone and bare apps, this defaults to false.
      *
@@ -165,13 +167,12 @@ class ExpoMessage
     /**
      * Set recipients of the message
      *
-     * @param  string|string[]  $tokens
-     *
-     * @return $this
-     *@throws ExpoException
-     * @throws InvalidTokensException
-     *
      * @see to
+     *
+     * @param  string|string[]  $tokens
+     * @return $this
+     * @throws ExpoException
+     * @throws InvalidTokensException
      *
      */
     public function setTo(array|string $tokens): self
@@ -184,13 +185,11 @@ class ExpoMessage
     /**
      * Sets the data for the message
      *
-     * @param  mixed|null  $data
-     *
-     * @return $this
-     *@throws ExpoMessageException
-     *
      * @see data
      *
+     * @param  mixed|null  $data
+     * @return $this
+     * @throws ExpoMessageException
      */
     public function setData(mixed $data = null): self
     {
@@ -237,7 +236,6 @@ class ExpoMessage
      * @see title
      *
      * @param  string|null  $title
-     *
      * @return $this
      */
     public function setTitle(?string $title = null): self
@@ -253,7 +251,6 @@ class ExpoMessage
      * @see body
      *
      * @param  string|null  $body
-     *
      * @return $this
      */
     public function setBody(?string $body = null): self
@@ -269,7 +266,6 @@ class ExpoMessage
      * @see ttl
      *
      * @param  int|null  $ttl
-     *
      * @return $this
      */
     public function setTtl(?int $ttl = null): self
@@ -285,7 +281,6 @@ class ExpoMessage
      * @see expiration
      *
      * @param  int|null  $expiration
-     *
      * @return $this
      */
     public function setExpiration(?int $expiration = null): self
@@ -296,15 +291,13 @@ class ExpoMessage
     }
 
     /**
-     * Sets the delivery priority of the message, either 'default', 'normal' or 'high
+     * Sets the delivery priority of the message, either 'default', 'normal' or 'high'
      *
      * @see priority
      *
-     * @throws ExpoMessageException
-     *
      * @param  string  $priority
-     *
      * @return $this
+     * @throws ExpoMessageException
      */
     public function setPriority(string $priority = 'default'): self
     {
@@ -325,7 +318,6 @@ class ExpoMessage
      * @see subtitle
      *
      * @param  string|null  $subtitle
-     *
      * @return $this
      */
     public function setSubtitle(?string $subtitle = null): self
@@ -350,13 +342,12 @@ class ExpoMessage
     }
 
     /**
-     * Sets the sound to play when the notification is recieved
+     * Sets the sound to play when the notification is received
      *
      * @see sound
      * @see playSound()
      *
      * @param  string|null  $sound
-     *
      * @return $this
      */
     public function setSound(?string $sound = null): self
@@ -372,7 +363,6 @@ class ExpoMessage
      * @see badge
      *
      * @param  int|float|null  $badge
-     *
      * @return $this
      */
     public function setBadge(int|float|null $badge = null): self
@@ -388,7 +378,6 @@ class ExpoMessage
      * @see channelId
      *
      * @param  string|null  $channelId
-     *
      * @return $this
      */
     public function setChannelId(?string $channelId = null): self
@@ -404,7 +393,6 @@ class ExpoMessage
      * @see categoryId
      *
      * @param  string|null  $categoryId
-     *
      * @return $this
      */
     public function setCategoryId(?string $categoryId = null): self
@@ -415,12 +403,11 @@ class ExpoMessage
     }
 
     /**
-     * Set whether the notification can be intercepted by the client app
+     * Set whether the client app intercepts the notification
      *
      * @see mutableContent
      *
      * @param  bool  $mutable
-     *
      * @return $this
      */
     public function setMutableContent(bool $mutable): self
@@ -436,7 +423,6 @@ class ExpoMessage
      * @see _contentAvailable
      *
      * @param  bool  $contentAvailable
-     *
      * @return $this
      */
     public function setContentAvailable(bool $contentAvailable): self
