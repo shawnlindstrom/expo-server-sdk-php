@@ -208,4 +208,3 @@ The MIT License (MIT). Please see [License File](LICENSE.md) for more informatio
 -   [Shawn Lindstrom](https://github.com/shawnlindstrom) - Maintainer
 -   [Cedric Twillie](https://github.com/ctwillie) - Original Author
 -   [All Contributors](../../contributors)
-
