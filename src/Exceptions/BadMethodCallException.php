@@ -6,4 +6,6 @@ namespace ExpoSDK\Exceptions;
 
 use Exception;
 
-class BadMethodCallException extends Exception {}
+class BadMethodCallException extends Exception
+{
+}

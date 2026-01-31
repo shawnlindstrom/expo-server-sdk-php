@@ -446,7 +446,6 @@ class ExpoTest extends TestCase
         $this->assertEquals(200, $response->getStatusCode());
     }
 
-
     #[Test]
     public function register_devices_not_registered_handler_with_expo_push_token_in_details()
     {

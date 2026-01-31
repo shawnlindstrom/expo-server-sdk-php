@@ -92,6 +92,7 @@ class File
 
         if (trim($contents) === '') {
             $this->write(new stdClass());
+
             return;
         }
 

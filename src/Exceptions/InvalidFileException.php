@@ -6,4 +6,6 @@ namespace ExpoSDK\Exceptions;
 
 use Exception;
 
-class InvalidFileException extends Exception {}
+class InvalidFileException extends Exception
+{
+}

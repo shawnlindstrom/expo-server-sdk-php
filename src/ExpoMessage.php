@@ -444,7 +444,7 @@ class ExpoMessage
 
         return array_filter(
             $attributes,
-            static fn(mixed $value): bool => $value !== null
+            static fn (mixed $value): bool => $value !== null
         );
     }
 }
