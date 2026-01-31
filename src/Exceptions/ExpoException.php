@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace ExpoSDK\Exceptions;
 
-class ExpoException extends \Exception
+use Exception;
+
+class ExpoException extends Exception
 {
     //
 }

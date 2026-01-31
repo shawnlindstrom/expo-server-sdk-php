@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace ExpoSDK\Exceptions;
 
-class InvalidFileException extends \Exception
+use Exception;
+
+class InvalidFileException extends Exception
 {
     //
 }
