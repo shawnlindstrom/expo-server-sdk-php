@@ -1,26 +1,35 @@
 <?php
 
+declare(strict_types=1);
+
 namespace ExpoSDK;
 
 use ExpoSDK\Exceptions\ExpoException;
 use GuzzleHttp\Client;
+use GuzzleHttp\Exception\GuzzleException;
 
 class ExpoClient
 {
-    public const EXPO_BASE_URL = 'https://exp.host/--/api/v2';
+    public const string EXPO_BASE_URL = 'https://exp.host/--/api/v2';
+
+    /**
+     * Compression threshold in kilobytes
+     */
+    private const int COMPRESSION_THRESHOLD_KB = 1;
+
+    /**
+     * Compression level (1-9, where 6 is a good balance of speed/compression)
+     */
+    private const int COMPRESSION_LEVEL = 6;
 
     /**
      * The Expo access token
-     *
-     * @var string
      */
-    private $accessToken = null;
+    private ?string $accessToken = null;
 
-    /** @var Client */
-    private $client;
+    private Client $client;
 
-    /** @var ExpoErrorManager */
-    private $errors;
+    private ExpoErrorManager $errors;
 
     public function __construct(array $options = [])
     {
@@ -31,6 +40,10 @@ class ExpoClient
 
     /**
      * Sends push notification messages to the Expo api
+     *
+     * @param  array  $messages
+     * @return ExpoResponse
+     * @throws GuzzleException|ExpoException
      */
     public function sendPushNotifications(array $messages): ExpoResponse
     {
@@ -80,7 +93,9 @@ class ExpoClient
     /**
      * Retrieves push notification receipts from the Expo api
      *
-     * @throws ExpoException
+     * @param  array  $ticketIds
+     * @return ExpoResponse
+     * @throws ExpoException|GuzzleException
      */
     public function getPushNotificationReceipts(array $ticketIds): ExpoResponse
     {
@@ -107,7 +122,14 @@ class ExpoClient
             ));
         }
 
-        $result = json_decode($response->getBody(), true);
+        $result = json_decode((string) $response->getBody(), true);
+
+        if ($result === null || json_last_error() !== JSON_ERROR_NONE) {
+            throw new ExpoException(
+                'Invalid JSON response from Expo API',
+                $response->getStatusCode()
+            );
+        }
 
         if (! array_key_exists('data', $result) || ! is_array($result['data'])) {
             throw new ExpoException(
@@ -120,6 +142,9 @@ class ExpoClient
 
     /**
      * Set the Expo access token
+     *
+     * @param string $accessToken
+     * @return void
      */
     public function setAccessToken(string $accessToken): void
     {
@@ -128,6 +153,8 @@ class ExpoClient
 
     /**
      * Get the clients request headers
+     *
+     * @return array
      */
     private function getDefaultHeaders(): array
     {
@@ -146,15 +173,18 @@ class ExpoClient
     }
 
     /**
-     * Compresses a string if > 1kib in size
+     * Compresses a string if it exceeds the compression threshold
+     *
+     * @param array $value
+     * @return array
      */
     private function compressBody(array $value): array
     {
         $value = json_encode($value);
         $compressed = false;
 
-        if ((strlen($value) / 1024) > 1) {
-            $value = gzencode($value, 6) ?? $value;
+        if ((strlen($value) / 1024) > self::COMPRESSION_THRESHOLD_KB) {
+            $value = gzencode($value, self::COMPRESSION_LEVEL) ?? $value;
             $compressed = true;
         }
 
@@ -163,6 +193,9 @@ class ExpoClient
 
     /**
      * Gets the actual message count
+     *
+     * @param array $messages
+     * @return int
      */
     private function getActualMessageCount(array $messages): int
     {

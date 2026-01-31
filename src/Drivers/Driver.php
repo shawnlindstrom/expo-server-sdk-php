@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace ExpoSDK\Drivers;
 
 abstract class Driver
@@ -15,14 +17,12 @@ abstract class Driver
     abstract public function store(string $channel, array $tokens): bool;
 
     /**
-     * Retrieves a channels subscriptions
-     *
-     * @return array|null
+     * Retrieves a channels subscriptions     *
      */
-    abstract public function retrieve(string $channel);
+    abstract public function retrieve(string $channel): ?array;
 
     /**
-     * Removes subscriptions from a channels
+     * Removes subscriptions from channels
      */
     abstract public function forget(string $channel, array $tokens): bool;
 }

@@ -1,11 +1,14 @@
 <?php
 
-namespace ExpoSDK;
+namespace ExpoSDK\Tests;
 
+use ExpoSDK\ExpoResponse;
 use GuzzleHttp\Client;
 use GuzzleHttp\Handler\MockHandler;
 use GuzzleHttp\HandlerStack;
 use GuzzleHttp\Psr7\Response;
+use PHPUnit\Framework\Attributes\Depends;
+use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\ResponseInterface;
 
@@ -19,8 +22,8 @@ class ExpoResponseTest extends TestCase
         ],
     ];
 
-    /** @test */
-    public function expo_response_will_instantiate()
+    #[Test]
+    public function it_can_instantiate_expo_response()
     {
         $mock = new MockHandler([
             new Response(200, [], json_encode([
@@ -44,10 +47,8 @@ class ExpoResponseTest extends TestCase
         return new ExpoResponse($response);
     }
 
-    /**
-     * @test
-     * @depends expo_response_will_instantiate
-     */
+    #[Test]
+    #[Depends('it_can_instantiate_expo_response')]
     public function can_determine_if_response_is_ok(ExpoResponse $response)
     {
         $this->assertTrue(
@@ -55,10 +56,8 @@ class ExpoResponseTest extends TestCase
         );
     }
 
-    /**
-     * @test
-     * @depends expo_response_will_instantiate
-     */
+    #[Test]
+    #[Depends('it_can_instantiate_expo_response')]
     public function can_retrieve_status_code_for_response(ExpoResponse $response)
     {
         $this->assertSame(
@@ -67,10 +66,8 @@ class ExpoResponseTest extends TestCase
         );
     }
 
-    /**
-     * @test
-     * @depends expo_response_will_instantiate
-     */
+    #[Test]
+    #[Depends('it_can_instantiate_expo_response')]
     public function can_retrieve_data_from_successsful_response(ExpoResponse $response)
     {
         $this->assertSame(

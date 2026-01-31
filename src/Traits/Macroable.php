@@ -1,32 +1,53 @@
 <?php
 
+declare(strict_types=1);
+
 namespace ExpoSDK\Traits;
 
 use BadMethodCallException;
 use Closure;
 use ReflectionClass;
+use ReflectionException;
 use ReflectionMethod;
 
 /**
- * @see https://github.com/spatie/macroable/blob/main/src/Macroable.php Source code at Laravel's GitHub
+ * @see https://github.com/spatie/macroable/blob/main/src/Macroable.php
  */
 trait Macroable
 {
-    protected static $macros = [];
+    /*
+     * The class macros.
+     *
+     * @var array
+     */
+    protected static array $macros = [];
 
+    /**
+     * Register a custom macro.
+     *
+     * WARNING: Never pass untrusted input as the $name parameter.
+     * Macro names should be developer-defined constants only. Passing
+     * user-controlled input could lead to security vulnerabilities.
+     *
+     * @param  string  $name  Macro name (must be trusted/hardcoded value)
+     * @param  callable  $macro  The macro implementation
+     * @return void
+     */
     public static function macro(string $name, callable $macro): void
     {
         static::$macros[$name] = $macro;
     }
 
+    /**
+     * @throws ReflectionException
+     */
     public static function mixin($mixin): void
     {
-        $methods = (new ReflectionClass($mixin))->getMethods(
+        $methods = new ReflectionClass($mixin)->getMethods(
             ReflectionMethod::IS_PUBLIC | ReflectionMethod::IS_PROTECTED
         );
 
         foreach ($methods as $method) {
-            $method->setAccessible(true);
 
             static::macro($method->name, $method->invoke($mixin));
         }

@@ -8,6 +8,7 @@ use GuzzleHttp\Client;
 use GuzzleHttp\Handler\MockHandler;
 use GuzzleHttp\HandlerStack;
 use GuzzleHttp\Psr7\Response;
+use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
 class ExpoErrorManagerTest extends TestCase
@@ -22,7 +23,7 @@ class ExpoErrorManagerTest extends TestCase
         ],
     ];
 
-    /** @test */
+    #[Test]
     public function response_has_errors_can_identify_errors_present()
     {
         $errors = new ExpoErrorManager();
@@ -38,7 +39,7 @@ class ExpoErrorManagerTest extends TestCase
         );
     }
 
-    /** @test */
+    #[Test]
     public function get_text_response_error_returns_exception()
     {
         $errors = new ExpoErrorManager();
@@ -56,7 +57,7 @@ class ExpoErrorManagerTest extends TestCase
         $this->assertSame(400, $exception->getCode());
     }
 
-    /** @test */
+    #[Test]
     public function get_error_from_result_returns_exception()
     {
         $errors = new ExpoErrorManager();
@@ -81,7 +82,7 @@ class ExpoErrorManagerTest extends TestCase
         $this->assertSame(400, $exception->getCode());
     }
 
-    /** @test */
+    #[Test]
     public function get_error_from_result_throws_exception_with_no_errors()
     {
         $errorResponse = [
@@ -105,7 +106,7 @@ class ExpoErrorManagerTest extends TestCase
         );
     }
 
-    /** @test */
+    #[Test]
     public function can_parse_an_error_response_and_return_exception()
     {
         $mock = new MockHandler([

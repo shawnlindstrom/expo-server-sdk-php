@@ -3,11 +3,12 @@
 namespace ExpoSDK\Tests;
 
 use ExpoSDK\Utils;
+use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
 class UtilsTest extends TestCase
 {
-    /** @test */
+    #[Test]
     public function can_identify_valid_expo_tokens()
     {
         $this->assertFalse(

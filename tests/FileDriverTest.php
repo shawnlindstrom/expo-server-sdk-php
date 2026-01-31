@@ -7,6 +7,7 @@ use ExpoSDK\Exceptions\InvalidFileException;
 use ExpoSDK\Exceptions\InvalidTokensException;
 use ExpoSDK\Expo;
 use ExpoSDK\File;
+use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
 class FileDriverTest extends TestCase
@@ -30,7 +31,7 @@ class FileDriverTest extends TestCase
         $this->file->empty();
     }
 
-    /** @test */
+    #[Test]
     public function file_driver_instantiates()
     {
         $expo = Expo::driver(
@@ -41,7 +42,7 @@ class FileDriverTest extends TestCase
         $this->assertInstanceOf(Expo::class, $expo);
     }
 
-    /** @test */
+    #[Test]
     public function throws_exception_for_invalid_files()
     {
         $this->expectException(FileDoesntExistException::class);
@@ -57,7 +58,7 @@ class FileDriverTest extends TestCase
         Expo::driver('file', ['path' => 'foo.json']);
     }
 
-    /** @test */
+    #[Test]
     public function throws_exception_for_invalid_tokens()
     {
         $channel = 'default';
@@ -75,7 +76,7 @@ class FileDriverTest extends TestCase
         $this->expo->subscribe($channel, $tokens);
     }
 
-    /** @test */
+    #[Test]
     public function can_subscribe_a_single_token_to_a_channel()
     {
         $channel = 'default';
@@ -87,7 +88,7 @@ class FileDriverTest extends TestCase
         $this->assertSame([$token], $subscriptions);
     }
 
-    /** @test */
+    #[Test]
     public function can_subscribe_multiple_tokens_to_a_channel()
     {
         $channel = 'promo';
@@ -100,7 +101,7 @@ class FileDriverTest extends TestCase
         $this->assertSame([$token1, $token2], $subscriptions);
     }
 
-    /** @test */
+    #[Test]
     public function can_retrieve_a_channels_subscriptions()
     {
         $channel = 'default';
@@ -115,7 +116,7 @@ class FileDriverTest extends TestCase
         $this->assertSame($tokens, $subs);
     }
 
-    /** @test */
+    #[Test]
     public function can_unsubscribe_a_single_token_from_a_channel()
     {
         $channel = 'default';
@@ -133,7 +134,7 @@ class FileDriverTest extends TestCase
         $this->assertSame([$token1], $subs);
     }
 
-    /** @test */
+    #[Test]
     public function can_unsubscribe_multiple_tokens_from_a_channel()
     {
         $channel = 'default';
@@ -152,7 +153,14 @@ class FileDriverTest extends TestCase
         $this->assertSame([$token3], $subs);
     }
 
-    /** @test */
+    #[Test]
+    public function unsubscribe_is_noop_when_channel_has_no_subscriptions()
+    {
+        $result = $this->expo->unsubscribe('channel-does-not-exist', 'ExpoPushToken[random-token]');
+        $this->assertTrue($result);
+    }
+
+    #[Test]
     public function channel_is_deleted_when_all_subscriptions_are_removed()
     {
         $channel = 'default';

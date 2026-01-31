@@ -1,18 +1,69 @@
 <?php
 
+namespace ExpoSDK\Tests;
+
 use ExpoSDK\Exceptions\ExpoException;
 use ExpoSDK\ExpoClient;
 use ExpoSDK\ExpoMessage;
 use ExpoSDK\ExpoResponse;
 use GuzzleHttp\Handler\MockHandler;
 use GuzzleHttp\HandlerStack;
+use GuzzleHttp\Middleware;
 use GuzzleHttp\Psr7\Response;
+use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
 class ExpoClientTest extends TestCase
 {
-    /** @test */
-    public function can_send_push_notifications()
+    #[Test]
+    public function adds_authorization_header_and_can_gzip_large_payloads(): void
+    {
+        $container = [];
+        $history = Middleware::history($container);
+
+        $mock = new MockHandler([
+            new Response(200, [], json_encode([
+                'data' => [
+                    [
+                        "id" => "xxx-xxxx-xxxxx-xxxx",
+                        "status" => "ok",
+                    ],
+                ],
+            ])),
+        ]);
+
+        $stack = HandlerStack::create($mock);
+        $stack->push($history);
+
+        $client = new ExpoClient([
+            'handler' => $stack,
+            'http_errors' => false,
+        ]);
+        $client->setAccessToken('access-token');
+
+        $big = [];
+        for ($i = 0; $i < 2000; $i++) {
+            // must be associative (numeric-string keys are cast to int keys in PHP arrays)
+            $big["k{$i}"] = str_repeat('a', 10);
+        }
+
+        $message = new ExpoMessage([
+            'title' => 'Title',
+            'to' => 'ExpoPushToken[xxxx]',
+            'data' => $big,
+        ])->toArray();
+
+        $client->sendPushNotifications([$message]);
+
+        $this->assertCount(1, $container);
+
+        $request = $container[0]['request'];
+        $this->assertSame('Bearer access-token', $request->getHeaderLine('Authorization'));
+        $this->assertSame('gzip', $request->getHeaderLine('Content-Encoding'));
+    }
+
+    #[Test]
+    public function can_send_push_notifications(): void
     {
         $data = [
             [
@@ -34,10 +85,10 @@ class ExpoClientTest extends TestCase
         ]);
         $client->setAccessToken('secret');
 
-        $message = (new ExpoMessage([
+        $message = new ExpoMessage([
             'title' => 'Title',
             'to' => 'ExpoPushToken[xxxx]',
-        ]))->toArray();
+        ])->toArray();
 
         $response = $client->sendPushNotifications([$message]);
 
@@ -47,7 +98,7 @@ class ExpoClientTest extends TestCase
         );
     }
 
-    /** @test */
+    #[Test]
     public function throws_exception_if_receipt_count_doesnt_match_ticket_count()
     {
         $data = [
@@ -73,10 +124,10 @@ class ExpoClientTest extends TestCase
             'http_errors' => false,
         ]);
 
-        $message = (new ExpoMessage([
+        $message = new ExpoMessage([
             'title' => 'Title',
             'to' => 'ExpoPushToken[xxxx]',
-        ]))->toArray();
+        ])->toArray();
 
         $this->expectExceptionMessage(
             'Expected Expo to respond with 1 ticket but received 2'
@@ -85,7 +136,7 @@ class ExpoClientTest extends TestCase
         $client->sendPushNotifications([$message]);
     }
 
-    /** @test */
+    #[Test]
     public function throws_exception_if_response_status_code_is_not_200()
     {
         $mock = new MockHandler([
@@ -98,17 +149,17 @@ class ExpoClientTest extends TestCase
             'http_errors' => false,
         ]);
 
-        $message = (new ExpoMessage([
+        $message = new ExpoMessage([
             'title' => 'Title',
             'to' => 'ExpoPushToken[xxxx]',
-        ]))->toArray();
+        ])->toArray();
 
         $this->expectException(ExpoException::class);
 
         $client->sendPushNotifications([$message]);
     }
 
-    /** @test */
+    #[Test]
     public function an_access_token_can_be_set()
     {
         $token = 'secret';
@@ -117,7 +168,6 @@ class ExpoClientTest extends TestCase
 
         $reflectedClass = new \ReflectionClass($client);
         $reflection = $reflectedClass->getProperty('accessToken');
-        $reflection->setAccessible(true);
 
         $this->assertEquals(
             $token,
@@ -125,7 +175,7 @@ class ExpoClientTest extends TestCase
         );
     }
 
-    /** @test */
+    #[Test]
     public function compresses_request_body_if_too_large()
     {
         $data = [
@@ -153,18 +203,18 @@ class ExpoClientTest extends TestCase
             $d[$i.$i] = $i;
         }
 
-        $message = (new ExpoMessage([
+        $message = new ExpoMessage([
             'title' => 'Title',
             'to' => 'ExpoPushToken[xxxx]',
             'data' => $d,
-        ]))->toArray();
+        ])->toArray();
 
         $response = $client->sendPushNotifications([$message]);
 
         $this->assertInstanceOf(ExpoResponse::class, $response);
     }
 
-    /** @test */
+    #[Test]
     public function throws_exception_if_response_has_errors()
     {
         $data = [
@@ -187,17 +237,17 @@ class ExpoClientTest extends TestCase
         ]);
         $client->setAccessToken('secret');
 
-        $message = (new ExpoMessage([
+        $message = new ExpoMessage([
             'title' => 'Title',
             'to' => 'ExpoPushToken[xxxx]',
-        ]))->toArray();
+        ])->toArray();
 
         $this->expectException(ExpoException::class);
 
         $client->sendPushNotifications([$message]);
     }
 
-    /** @test */
+    #[Test]
     public function can_retrieve_push_notification_receipts()
     {
         $data = [];
@@ -222,7 +272,7 @@ class ExpoClientTest extends TestCase
         $this->assertSame($data, $response->getData());
     }
 
-    /** @test */
+    #[Test]
     public function throws_exception_if_fails_to_retrieve_receipts()
     {
         $ticketId = 'xxxx-xxxx-xxxx';
@@ -241,7 +291,7 @@ class ExpoClientTest extends TestCase
         $client->getPushNotificationReceipts([$ticketId]);
     }
 
-    /** @test */
+    #[Test]
     public function throws_exception_with_malformed_receipt_data()
     {
         $ticketId = 'xxxx-xxxx-xxxx';
@@ -260,5 +310,82 @@ class ExpoClientTest extends TestCase
         );
 
         $client->getPushNotificationReceipts([$ticketId]);
+    }
+
+    #[Test]
+    public function throws_exception_when_json_decode_fails()
+    {
+        $mock = new MockHandler([
+            new Response(200, [], 'invalid json'),
+        ]);
+
+        $handlerStack = HandlerStack::create($mock);
+        $client = new ExpoClient([
+            'handler' => $handlerStack,
+            'http_errors' => false,
+        ]);
+
+        $message = new ExpoMessage([
+            'title' => 'Title',
+            'to' => 'ExpoPushToken[xxxx]',
+        ])->toArray();
+
+        $this->expectException(ExpoException::class);
+
+        $client->sendPushNotifications([$message]);
+    }
+
+    #[Test]
+    public function throws_exception_when_json_decode_fails_for_receipts()
+    {
+        $ticketId = 'xxxx-xxxx-xxxx';
+        $mock = new MockHandler([
+            new Response(200, [], 'invalid json'),
+        ]);
+
+        $handlerStack = HandlerStack::create($mock);
+        $client = new ExpoClient([
+            'handler' => $handlerStack,
+            'http_errors' => false,
+        ]);
+
+        // After the bug fix, we now properly handle JSON decode failures
+        $this->expectException(\ExpoSDK\Exceptions\ExpoException::class);
+        $this->expectExceptionMessage('Invalid JSON response from Expo API');
+
+        $client->getPushNotificationReceipts([$ticketId]);
+    }
+
+    #[Test]
+    public function compresses_receipts_request_body_when_large()
+    {
+        $container = [];
+        $history = Middleware::history($container);
+
+        $mock = new MockHandler([
+            new Response(200, [], json_encode([
+                'data' => ['ticket-1' => ['status' => 'ok']],
+            ])),
+        ]);
+
+        $stack = HandlerStack::create($mock);
+        $stack->push($history);
+
+        $client = new ExpoClient([
+            'handler' => $stack,
+            'http_errors' => false,
+        ]);
+
+        // Generate many ticket IDs to exceed compression threshold
+        $ticketIds = [];
+        for ($i = 0; $i < 2000; $i++) {
+            $ticketIds[] = 'ticket-' . str_repeat('x', 50) . '-' . $i;
+        }
+
+        $client->getPushNotificationReceipts($ticketIds);
+
+        $this->assertCount(1, $container);
+        $request = $container[0]['request'];
+        $this->assertSame('gzip', $request->getHeaderLine('Content-Encoding'));
     }
 }

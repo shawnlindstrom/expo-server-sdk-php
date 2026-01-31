@@ -1,18 +1,29 @@
 <?php
 
+declare(strict_types=1);
+
 namespace ExpoSDK;
 
 use ExpoSDK\Exceptions\ExpoException;
 use ExpoSDK\Exceptions\InvalidTokensException;
 
-class Utils
+final class Utils
 {
+    /**
+     * Prevent instantiation of utility class
+     */
+    private function __construct()
+    {
+        // Utility class should not be instantiated
+    }
+
     /**
      * Check if a value is a valid Expo push token
      *
-     * @param mixed $value
+     * @param  mixed  $value
+     * @return bool
      */
-    public static function isExpoPushToken($value): bool
+    public static function isExpoPushToken(mixed $value): bool
     {
         if (! is_string($value) || strlen($value) < 15) {
             return false;
@@ -24,10 +35,13 @@ class Utils
     }
 
     /**
-     * Determine if an array is an asociative array
+     * Determine if an array is an associative array
      *
      * The check determines if the array has sequential numeric
      * keys. If it does not, it is considered an associative array.
+     *
+     * @param array $arr
+     * @return bool
      */
     public static function isAssoc(array $arr): bool
     {
@@ -36,30 +50,35 @@ class Utils
 
     /**
      * Check if a string starts with another
+     *
+     * @param string $haystack
+     * @param string $needle
+     * @return bool
      */
     public static function strStartsWith(string $haystack, string $needle): bool
     {
-        return (string)$needle !== '' &&
-            strncmp($haystack, $needle, strlen($needle)) === 0;
+        return $needle !== '' && str_starts_with($haystack, $needle);
     }
 
     /**
      * Check if a string ends with another
+     *
+     * @param string $haystack
+     * @param string $needle
+     * @return bool
      */
     public static function strEndsWith(string $haystack, string $needle): bool
     {
-        return $needle !== '' &&
-            substr($haystack, -strlen($needle)) === (string) $needle;
+        return $needle !== '' && str_ends_with($haystack, $needle);
     }
 
     /**
-     * Wrap data in array if data is not an array
+     * Wrap data in the array if data is not an array
      *
      * @param mixed $data
-     *
      * @return array
      */
-    public static function arrayWrap($data): array
+    public static function arrayWrap(mixed $data): array
     {
         return is_array($data) ? $data : [$data];
     }
@@ -67,14 +86,13 @@ class Utils
     /**
      * Validates and filters tokens for later use
      *
-     * @throws \ExpoSDK\Exceptions\ExpoException
-     * @throws \ExpoSDK\Exceptions\InvalidTokensException
-     *
-     * @param string[]|string $tokens
-     *
+     * @param string|string[] $tokens
      * @return string[]
+     * @throws ExpoException
+     * @throws InvalidTokensException
+     *
      */
-    public static function validateTokens($tokens): array
+    public static function validateTokens(array|string|null $tokens): array
     {
         if (! is_array($tokens) && ! is_string($tokens)) {
             throw new InvalidTokensException(sprintf(
@@ -83,14 +101,15 @@ class Utils
             ));
         }
 
-        $tokens = array_filter(Utils::arrayWrap($tokens), function ($token) {
-            return Utils::isExpoPushToken($token);
-        });
+        $tokens = array_filter(
+            self::arrayWrap($tokens),
+            static fn(mixed $token): bool => self::isExpoPushToken($token)
+        );
 
         if (count($tokens) === 0) {
             throw new ExpoException('No valid expo tokens provided.');
         }
 
-        return $tokens;
+        return array_values($tokens);
     }
 }

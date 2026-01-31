@@ -1,7 +1,10 @@
 <?php
 
+declare(strict_types=1);
+
 namespace ExpoSDK;
 
+use ExpoSDK\Drivers\Driver;
 use ExpoSDK\Drivers\FileDriver;
 use ExpoSDK\Exceptions\InvalidTokensException;
 use ExpoSDK\Exceptions\UnsupportedDriverException;
@@ -9,22 +12,26 @@ use ExpoSDK\Exceptions\UnsupportedDriverException;
 class DriverManager
 {
     /**
-     * @var array
+     * Map of driver keys to their implementation classes
+     *
+     * @var array<string, class-string<Driver>>
      */
-    private $supportedDrivers = [
-        'file',
+    private array $driverMap = [
+        'file' => FileDriver::class,
     ];
 
-    /**
-     * @var string
-     */
-    private $driverKey;
+    private string $driverKey;
 
     /**
      * @var Driver
      */
-    private $driver;
+    private Driver $driver;
 
+    /**
+     * @param  string  $driver
+     * @param  array  $config
+     * @throws UnsupportedDriverException
+     */
     public function __construct(string $driver, array $config = [])
     {
         $this->validateDriver($driver)
@@ -34,16 +41,18 @@ class DriverManager
     /**
      * Validates the driver against supported drivers
      *
+     * @param  string  $driver
      * @throws UnsupportedDriverException
      */
     private function validateDriver(string $driver): self
     {
         $this->driverKey = strtolower($driver);
 
-        if (! in_array($this->driverKey, $this->supportedDrivers)) {
+        if (! array_key_exists($this->driverKey, $this->driverMap)) {
             throw new UnsupportedDriverException(sprintf(
-                'Driver %s is not supported',
-                $driver
+                'Driver %s is not supported. Supported drivers: %s',
+                $driver,
+                implode(', ', array_keys($this->driverMap))
             ));
         }
 
@@ -51,21 +60,25 @@ class DriverManager
     }
 
     /**
-     * Builds the driver instance
+     * Builds the driver instance using the driver registry
+     *
+     * @param  array  $config
      */
     private function buildDriver(array $config): void
     {
-        if ($this->driverKey === 'file') {
-            $this->driver = new FileDriver($config);
-        }
+        $driverClass = $this->driverMap[$this->driverKey];
+        $this->driver = new $driverClass($config);
     }
 
     /**
      * Subscribes tokens to a channel
      *
-     * @param null|string|array $tokens
+     * @param  string  $channel
+     * @param  null|string|array  $tokens
+     * @return bool
+     * @throws InvalidTokensException
      */
-    public function subscribe(string $channel, $tokens): bool
+    public function subscribe(string $channel, array|string|null $tokens): bool
     {
         return $this->driver->store(
             $this->normalizeChannel($channel),
@@ -76,9 +89,10 @@ class DriverManager
     /**
      * Get a channels tokens
      *
+     * @param  string  $channel
      * @return array|null
      */
-    public function getSubscriptions(string $channel)
+    public function getSubscriptions(string $channel): ?array
     {
         return $this->driver->retrieve(
             $this->normalizeChannel($channel)
@@ -88,9 +102,12 @@ class DriverManager
     /**
      * Unsubscribes tokens from a channel
      *
-     * @param null|string|array $tokens
+     * @param  string  $channel
+     * @param  array|string|null  $tokens
+     * @return bool
+     * @throws InvalidTokensException
      */
-    public function unsubscribe(string $channel, $tokens): bool
+    public function unsubscribe(string $channel, array|string|null $tokens): bool
     {
         return $this->driver->forget(
             $this->normalizeChannel($channel),
@@ -100,6 +117,9 @@ class DriverManager
 
     /**
      * Normalizes the channel name
+     *
+     * @param  string  $channel
+     * @return string
      */
     private function normalizeChannel(string $channel): string
     {
@@ -109,10 +129,11 @@ class DriverManager
     /**
      * Normalizes tokens to be an array
      *
-     * @param string|array $tokens
+     * @param  array|string|null  $tokens
+     * @return array
      * @throws InvalidTokensException
      */
-    private function normalizeTokens($tokens): array
+    private function normalizeTokens(array|string|null $tokens): array
     {
         if (is_array($tokens) && count($tokens) > 0) {
             return $tokens;

@@ -4,6 +4,7 @@ namespace ExpoSDK\Tests;
 
 use BadMethodCallException;
 use ExpoSDK\Traits\Macroable;
+use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
 class MacroableTest extends TestCase
@@ -26,7 +27,7 @@ class MacroableTest extends TestCase
         };
     }
 
-    /** @test */
+    #[Test]
     public function a_new_macro_can_be_registered_and_called()
     {
         $this->macroableClass::macro('newMethod', function () {
@@ -36,7 +37,7 @@ class MacroableTest extends TestCase
         $this->assertEquals('newValue', $this->macroableClass->newMethod());
     }
 
-    /** @test */
+    #[Test]
     public function a_new_macro_can_be_registered_and_called_statically()
     {
         $this->macroableClass::macro('newMethod', function () {
@@ -46,7 +47,7 @@ class MacroableTest extends TestCase
         $this->assertEquals('newValue', $this->macroableClass::newMethod());
     }
 
-    /** @test */
+    #[Test]
     public function a_class_can_be_registered_as_a_new_macro_and_be_invoked()
     {
         $this->macroableClass::macro('newMethod', new class () {
@@ -60,7 +61,7 @@ class MacroableTest extends TestCase
         $this->assertEquals('newValue', $this->macroableClass::newMethod());
     }
 
-    /** @test */
+    #[Test]
     public function it_passes_parameters_correctly()
     {
         $this->macroableClass::macro('concatenate', function (...$strings) {
@@ -73,7 +74,7 @@ class MacroableTest extends TestCase
         );
     }
 
-    /** @test */
+    #[Test]
     public function registered_methods_are_bound_to_the_class()
     {
         $this->macroableClass::macro('newMethod', function () {
@@ -83,7 +84,7 @@ class MacroableTest extends TestCase
         $this->assertEquals('privateValue', $this->macroableClass->newMethod());
     }
 
-    /** @test */
+    #[Test]
     public function it_can_work_on_static_methods()
     {
         $this->macroableClass::macro('testStatic', function () {
@@ -96,7 +97,7 @@ class MacroableTest extends TestCase
         );
     }
 
-    /** @test */
+    #[Test]
     public function it_can_mixin_all_public_methods_from_another_class()
     {
         $this->macroableClass::mixin($this->getMixinClass());
@@ -107,7 +108,7 @@ class MacroableTest extends TestCase
         );
     }
 
-    /** @test */
+    #[Test]
     public function it_will_throw_an_exception_if_a_method_does_not_exist()
     {
         $this->expectException(BadMethodCallException::class);
@@ -115,7 +116,7 @@ class MacroableTest extends TestCase
         $this->macroableClass->nonExistingMethod();
     }
 
-    /** @test */
+    #[Test]
     public function it_will_throw_an_exception_if_a_static_method_does_not_exist()
     {
         $this->expectException(BadMethodCallException::class);

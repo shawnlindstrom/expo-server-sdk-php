@@ -10,6 +10,8 @@ use ExpoSDK\File;
 use GuzzleHttp\Handler\MockHandler;
 use GuzzleHttp\HandlerStack;
 use GuzzleHttp\Psr7\Response;
+use PHPUnit\Framework\Attributes\Depends;
+use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
 class ExpoTest extends TestCase
@@ -27,7 +29,7 @@ class ExpoTest extends TestCase
         $this->file->empty();
     }
 
-    /** @test */
+    #[Test]
     public function expo_instantiates()
     {
         $expo = Expo::driver('file', [
@@ -39,7 +41,7 @@ class ExpoTest extends TestCase
         return $expo;
     }
 
-    /** @test */
+    #[Test]
     public function only_accepts_supported_drivers()
     {
         $this->expectException(UnsupportedDriverException::class);
@@ -47,10 +49,8 @@ class ExpoTest extends TestCase
         Expo::driver('foo');
     }
 
-    /**
-     * @test
-     * @depends expo_instantiates
-     */
+    #[Test]
+    #[Depends('expo_instantiates')]
     public function can_identify_valid_expo_tokens(Expo $expo)
     {
         $result = $expo->isExpoPushToken('foo');
@@ -69,10 +69,8 @@ class ExpoTest extends TestCase
         $this->assertTrue($result);
     }
 
-    /**
-     * @test
-     * @depends expo_instantiates
-     */
+    #[Test]
+    #[Depends('expo_instantiates')]
     public function expo_filters_non_valid_tokens(Expo $expo)
     {
         $valid = 'ExponentPushToken[yyy-yyy-yyy]';
@@ -85,10 +83,8 @@ class ExpoTest extends TestCase
         );
     }
 
-    /**
-     * @test
-     * @depends expo_instantiates
-     */
+    #[Test]
+    #[Depends('expo_instantiates')]
     public function methods_return_expo_instance(Expo $expo)
     {
         $expo = $expo->send(new ExpoMessage());
@@ -98,10 +94,8 @@ class ExpoTest extends TestCase
         $this->assertInstanceOf(Expo::class, $expo);
     }
 
-    /**
-     * @test
-     * @depends expo_instantiates
-     */
+    #[Test]
+    #[Depends('expo_instantiates')]
     public function can_set_message_recipients(Expo $expo)
     {
         $token = 'ExponentPushToken[xxx-xxx-xxx]';
@@ -113,10 +107,8 @@ class ExpoTest extends TestCase
         $this->assertSame($tokens, $expo->getRecipients());
     }
 
-    /**
-     * @test
-     * @depends expo_instantiates
-     */
+    #[Test]
+    #[Depends('expo_instantiates')]
     public function expo_throws_exception_for_invalid_recipients(Expo $expo)
     {
         $tokens = null;
@@ -128,10 +120,8 @@ class ExpoTest extends TestCase
         $expo->to($tokens);
     }
 
-    /**
-     * @test
-     * @depends expo_instantiates
-     */
+    #[Test]
+    #[Depends('expo_instantiates')]
     public function throws_exception_with_no_valid_tokens(Expo $expo)
     {
         $valid = 'invalid-token[yyy-yyy-yyy]';
@@ -144,7 +134,7 @@ class ExpoTest extends TestCase
         $expo->to([$valid, $invalid]);
     }
 
-    /** @test */
+    #[Test]
     public function an_expo_message_can_be_built()
     {
         $message = (new ExpoMessage())
@@ -165,10 +155,8 @@ class ExpoTest extends TestCase
         $this->assertSame($expected, $message->toArray());
     }
 
-    /**
-     * @test
-     * @depends expo_instantiates
-     */
+    #[Test]
+    #[Depends('expo_instantiates')]
     public function to_channel_method_sets_recipients(Expo $expo)
     {
         $token = 'ExponentPushToken[xxx-xxx-xxx]';
@@ -182,10 +170,8 @@ class ExpoTest extends TestCase
         );
     }
 
-    /**
-     * @test
-     * @depends expo_instantiates
-     */
+    #[Test]
+    #[Depends('expo_instantiates')]
     public function can_determine_if_a_channel_has_subscriptions(Expo $expo)
     {
         $token = 'ExponentPushToken[xxx-xxx-xxx]';
@@ -201,7 +187,7 @@ class ExpoTest extends TestCase
         $this->assertFalse($hasSubscriptions);
     }
 
-    /** @test */
+    #[Test]
     public function throws_exception_checking_subscriptions_without_driver()
     {
         $expo = new Expo();
@@ -211,7 +197,7 @@ class ExpoTest extends TestCase
         $expo->hasSubscriptions('default', []);
     }
 
-    /** @test */
+    #[Test]
     public function throws_exception_retrieving_subscriptions_without_driver()
     {
         $expo = new Expo();
@@ -221,7 +207,7 @@ class ExpoTest extends TestCase
         $expo->getSubscriptions('default', []);
     }
 
-    /** @test */
+    #[Test]
     public function throws_exception_subscribing_token_without_driver()
     {
         $expo = new Expo();
@@ -231,7 +217,7 @@ class ExpoTest extends TestCase
         $expo->subscribe('default', []);
     }
 
-    /** @test */
+    #[Test]
     public function throws_exception_unsubscribing_token_without_driver()
     {
         $expo = new Expo();
@@ -241,7 +227,7 @@ class ExpoTest extends TestCase
         $expo->unsubscribe('default', []);
     }
 
-    /** @test */
+    #[Test]
     public function throws_exception_when_push_called_with_no_messages()
     {
         $expo = new Expo();
@@ -251,7 +237,7 @@ class ExpoTest extends TestCase
         $expo->push();
     }
 
-    /** @test */
+    #[Test]
     public function converts_arrays_to_expo_messages()
     {
         $messages = [
@@ -297,7 +283,7 @@ class ExpoTest extends TestCase
         $this->assertEquals($expectedMessages, $messages);
     }
 
-    /** @test */
+    #[Test]
     public function throws_exception_if_any_message_does_not_have_recpients()
     {
         $message1 = (new ExpoMessage())
@@ -317,7 +303,7 @@ class ExpoTest extends TestCase
         (new Expo())->send([$message1, $message2])->push();
     }
 
-    /** @test */
+    #[Test]
     public function throws_exception_passing_assoc_array_to_send_method()
     {
         $this->expectExceptionMessage(
@@ -327,7 +313,7 @@ class ExpoTest extends TestCase
         (new Expo())->send(['title' => 'Title']);
     }
 
-    /** @test */
+    #[Test]
     public function can_register_callback_for_unregistered_tokens()
     {
         $expo = new Expo();
@@ -339,7 +325,7 @@ class ExpoTest extends TestCase
         $this->assertTrue($expo::hasMacro('devicesNotRegistered'));
     }
 
-    /** @test */
+    #[Test]
     public function can_reset_the_instance_message_and_recipients()
     {
         $token = 'ExpoPushToken[xxxxxx]';
@@ -355,7 +341,7 @@ class ExpoTest extends TestCase
         $this->assertEmpty($expo->getMessages());
     }
 
-    /** @test */
+    #[Test]
     public function can_push_messages_to_expo_tokens()
     {
         $data = [
@@ -387,14 +373,14 @@ class ExpoTest extends TestCase
         $this->assertEquals(200, $response->getStatusCode());
     }
 
-    /** @test */
+    #[Test]
     public function can_register_devices_not_registered_handler()
     {
         $token = 'ExpoPushToken[xxxx]';
         $data = [
             [
                 "status" => "error",
-                "message" => "'${token}' is not a registered push notification recipient",
+                "message" => "'{$token}' is not a registered push notification recipient",
                 "details" => [
                     "error" => "DeviceNotRegistered",
                 ],
@@ -410,7 +396,7 @@ class ExpoTest extends TestCase
         $handlerStack = HandlerStack::create($mock);
 
         $unregistered = [];
-        Expo::addDevicesNotRegisteredHandler(function ($tokens) use ($unregistered) {
+        Expo::addDevicesNotRegisteredHandler(function (array $tokens) use (&$unregistered) {
             foreach ($tokens as $token) {
                 $unregistered[] = $token;
             }
@@ -429,9 +415,10 @@ class ExpoTest extends TestCase
         $response = $expo->send($message)->push();
 
         $this->assertSame(200, $response->getStatusCode());
+        $this->assertSame([$token], $unregistered);
     }
 
-    /** @test */
+    #[Test]
     public function can_retrieve_push_notification_receipts()
     {
         $ticketId = 'xxx-xxxx-xxxxx-xxxx';
@@ -457,5 +444,86 @@ class ExpoTest extends TestCase
         $response = $expo->getReceipts([$ticketId]);
 
         $this->assertEquals(200, $response->getStatusCode());
+    }
+
+
+    #[Test]
+    public function register_devices_not_registered_handler_with_expo_push_token_in_details()
+    {
+        $token = 'ExpoPushToken[xxxx]';
+        $data = [
+            [
+                "status" => "error",
+                "message" => "'{$token}' is not a registered push notification recipient",
+                "details" => [
+                    "error" => "DeviceNotRegistered",
+                    "expoPushToken" => $token,
+                ],
+            ],
+        ];
+
+        $mock = new MockHandler([
+            new Response(200, [], json_encode([
+                'data' => $data,
+            ])),
+        ]);
+
+        $handlerStack = HandlerStack::create($mock);
+
+        $unregistered = [];
+        Expo::addDevicesNotRegisteredHandler(function (array $tokens) use (&$unregistered) {
+            foreach ($tokens as $token) {
+                $unregistered[] = $token;
+            }
+        });
+
+        $expo = new Expo(null, [
+            'handler' => $handlerStack,
+            'http_errors' => false,
+        ]);
+
+        $message = new ExpoMessage([
+            'title' => 'Title',
+            'to' => $token,
+        ]);
+
+        $response = $expo->send($message)->push();
+
+        $this->assertSame(200, $response->getStatusCode());
+        $this->assertSame([$token], $unregistered);
+    }
+
+    #[Test]
+    public function push_uses_message_to_when_both_default_and_message_recipients_exist()
+    {
+        $defaultToken = 'ExpoPushToken[default]';
+        $messageToken = 'ExpoPushToken[message]';
+
+        $mock = new MockHandler([
+            new Response(200, [], json_encode([
+                'data' => [
+                    ['id' => 'xxx', 'status' => 'ok'],
+                ],
+            ])),
+        ]);
+
+        $handlerStack = HandlerStack::create($mock);
+        $expo = new Expo(null, [
+            'handler' => $handlerStack,
+            'http_errors' => false,
+        ]);
+
+        // Set default recipients
+        $expo->to($defaultToken);
+
+        // Message has its own recipients - should use message recipients, not default
+        $message = new ExpoMessage([
+            'title' => 'Test',
+            'to' => $messageToken,
+        ]);
+
+        $response = $expo->send($message)->push();
+
+        $this->assertSame(200, $response->getStatusCode());
     }
 }

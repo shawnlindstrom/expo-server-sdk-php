@@ -1,8 +1,18 @@
-# expo-server-sdk-php ![tests](https://github.com/ctwillie/expo-server-sdk-php/actions/workflows/tests.yml/badge.svg) [![codecov](https://codecov.io/gh/ctwillie/expo-server-sdk-php/branch/master/graph/badge.svg?token=8QO3NL131R)](https://codecov.io/gh/ctwillie/expo-server-sdk-php) ![GitHub](https://img.shields.io/github/license/ctwillie/expo-server-sdk-php?color=%2300CED1)
+# expo-server-sdk-php ![tests](https://github.com/shawnlindstrom/expo-server-sdk-php/actions/workflows/tests.yml/badge.svg) [![codecov](https://codecov.io/gh/shawnlindstrom/expo-server-sdk-php/branch/master/graph/badge.svg?token=<CODECOV_TOKEN>)](https://codecov.io/gh/shawnlindstrom/expo-server-sdk-php) ![GitHub](https://img.shields.io/github/license/shawnlindstrom/expo-server-sdk-php?color=%2300CED1)
 
 Server-side library for working with Expo using PHP.
 
-If you have any problems with the code in this repository, feel free to [open an issue](https://github.com/ctwillie/expo-server-sdk-php/issues) or make a PR!
+## Fork Notice
+
+This is a modernization fork of [`ctwillie/expo-server-sdk-php`](https://github.com/ctwillie/expo-server-sdk-php), maintained for ongoing support and modern PHP compatibility.
+
+**Focus:** Ongoing maintenance, PHP 8.4+ compatibility, improved type safety, enhanced testing, and dependency updates while maintaining API compatibility.
+
+**Requirements:** PHP 8.4 or higher
+
+**License:** MIT (see `LICENSE.md`). Full credit to the original author and contributors.
+
+If you encounter any issues or would like to contribute, please [open an issue](https://github.com/shawnlindstrom/expo-server-sdk-php/issues) or submit a pull request!
 
 <details open="open">
 <summary>Table of Contents</summary>
@@ -35,7 +45,7 @@ composer test
 You can install the package via composer:
 
 ```bash
-composer require ctwillie/expo-server-sdk-php
+composer require shawnlindstrom/expo-server-sdk-php
 ```
 
 ## Use Cases
@@ -71,7 +81,7 @@ $message = (new ExpoMessage([
 
 ## Sending a push notification
 
-Compose a message then send to one or more recipients.
+Compose a message, then send it to one or more recipients.
 
 ```php
 use ExpoSDK\Expo;
@@ -105,9 +115,9 @@ $defaultRecipients = [
 
 ## Channel subscriptions
 
-Subscribe tokens to a channel, then push notification messages to that channel. Subscriptions are persisted internally in a local file so you don't have to worry about this yourself. Unsubscribe the token from the channel at any time to stop messages to that recipient.
+Subscribe tokens to a channel, then push notification messages to that channel. Subscriptions are persisted internally in a local file, so you don't have to worry about this yourself. Unsubscribe the token from the channel at any time to stop messages to that recipient.
 
-> :warning: **If you are are running multiple app servers**: Be very careful here! Channel subscriptions are stored in an internal local file. Subscriptions will not be shared across multiple servers.
+> :warning: **If you are running multiple app servers**: Be very careful here! Channel subscriptions are stored in an internal local file. Subscriptions will not be shared across multiple servers.
 
 ```php
 /**
@@ -126,7 +136,7 @@ $recipients = [
 ];
 
 // name your channel anything you'd like
-$channel = 'news-letter';
+$channel = 'newsletter';
 // the channel will be created automatically if it doesn't already exist
 $expo->subscribe($channel, $recipients);
 
@@ -195,5 +205,6 @@ The MIT License (MIT). Please see [License File](LICENSE.md) for more informatio
 
 ## Credits
 
--   [Cedric Twillie](https://github.com/ctwillie)
+-   [Shawn Lindstrom](https://github.com/shawnlindstrom) - Maintainer
+-   [Cedric Twillie](https://github.com/ctwillie) - Original Author
 -   [All Contributors](../../contributors)

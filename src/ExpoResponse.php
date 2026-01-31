@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace ExpoSDK;
 
 use Psr\Http\Message\ResponseInterface;
@@ -7,15 +9,15 @@ use Psr\Http\Message\ResponseInterface;
 class ExpoResponse
 {
     /** @var array */
-    private $response;
+    private mixed $response;
 
     /** @var int */
-    private $statusCode;
+    private int $statusCode;
 
     public function __construct(ResponseInterface $response)
     {
         $this->response = json_decode(
-            $response->getBody(),
+            (string) $response->getBody(),
             true
         );
 
@@ -24,15 +26,19 @@ class ExpoResponse
 
     /**
      * Checks if the request succeeded
+     *
+     * @return bool
      */
     public function ok(): bool
     {
-        return $this->getStatusCode() === 200 &&
+        return $this->statusCode === 200 &&
             ! array_key_exists('errors', $this->response);
     }
 
     /**
      * Get the http response status code
+     *
+     * @return int
      */
     public function getStatusCode(): int
     {
@@ -44,7 +50,7 @@ class ExpoResponse
      *
      * @return array|null
      */
-    public function getData()
+    public function getData(): ?array
     {
         return $this->ok()
             ? $this->response['data']

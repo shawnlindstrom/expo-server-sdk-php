@@ -1,37 +1,45 @@
 <?php
 
+declare(strict_types=1);
+
 namespace ExpoSDK;
 
 use ExpoSDK\Exceptions\ExpoException;
+use JsonException;
 use Psr\Http\Message\ResponseInterface;
 
 class ExpoErrorManager
 {
     /**
      * Parses an error response from expo
+     *
+     * @param  ResponseInterface  $response
+     * @return ExpoException
      */
     public function parseErrorResponse(ResponseInterface $response): ExpoException
     {
+        $statusCode = $response->getStatusCode();
         $textBody = (string) $response->getBody();
-        $result = null;
 
-        $result = json_decode($textBody, true);
-        if (is_null($result) || json_last_error() !== JSON_ERROR_NONE) {
-            return $this->getTextResponseError($textBody, $response->getStatusCode());
+        try {
+            $result = json_decode($textBody, associative: true, flags: JSON_THROW_ON_ERROR);
+        } catch (JsonException) {
+            return $this->getTextResponseError($textBody, $statusCode);
         }
 
-        if (! $this->responseHasErrors($result)) {
-            return $this->getTextResponseError($textBody, $response->getStatusCode());
+        if (! is_array($result) || ! $this->responseHasErrors($result)) {
+            return $this->getTextResponseError($textBody, $statusCode);
         }
 
-        return $this->getErrorFromResult(
-            $result,
-            $response->getStatusCode()
-        );
+        return $this->getErrorFromResult($result, $statusCode);
     }
 
     /**
      * Constructs an exception from the response text
+     *
+     * @param  string  $errorText
+     * @param  int  $statusCode
+     * @return ExpoException
      */
     public function getTextResponseError(string $errorText, int $statusCode): ExpoException
     {
@@ -44,6 +52,10 @@ class ExpoErrorManager
 
     /**
      * Returns an exception for the first API error from the expo response
+     *
+     * @param  array  $response
+     * @param  int  $statusCode
+     * @return ExpoException
      */
     public function getErrorFromResult(array $response, int $statusCode): ExpoException
     {
@@ -67,7 +79,10 @@ class ExpoErrorManager
     }
 
     /**
-     * Determine if the json decoded response has errors present
+     * Determine if the JSON decoded response has errors present
+     *
+     * @param  array  $response
+     * @return bool
      */
     public function responseHasErrors(array $response): bool
     {
