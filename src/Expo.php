@@ -6,15 +6,19 @@ namespace ExpoSDK;
 
 use Closure;
 use ExpoSDK\Exceptions\ExpoException;
+use ExpoSDK\Exceptions\FileDoesntExistException;
+use ExpoSDK\Exceptions\InvalidFileException;
 use ExpoSDK\Exceptions\InvalidTokensException;
+use ExpoSDK\Exceptions\UnsupportedDriverException;
 use ExpoSDK\Traits\Macroable;
+use GuzzleHttp\Exception\GuzzleException;
 
 class Expo
 {
     use Macroable;
 
     /**
-     * @var DriverManager
+     * @var DriverManager|null
      */
     private ?DriverManager $manager;
 
@@ -54,6 +58,10 @@ class Expo
 
     /**
      * Builds an expo instance
+     *
+     * @throws FileDoesntExistException
+     * @throws InvalidFileException
+     * @throws UnsupportedDriverException
      */
     public static function driver(string $driver = 'file', array $config = []): self
     {
@@ -65,9 +73,8 @@ class Expo
     /**
      * Subscribes tokens to a channel
      *
-     * @param  array|string|null  $tokens
-     * @return bool
      * @throws ExpoException
+     * @throws InvalidTokensException
      */
     public function subscribe(string $channel, array|string|null $tokens = null): bool
     {
@@ -81,10 +88,8 @@ class Expo
     /**
      * Unsubscribes tokens from a channel
      *
-     * @param  array|string|null  $tokens
-     * @return bool
-     * @throws ExpoException
-    */
+     * @throws ExpoException|InvalidTokensException
+     */
     public function unsubscribe(string $channel, array|string|null $tokens = null): bool
     {
         if ($this->manager) {
@@ -96,6 +101,7 @@ class Expo
 
     /**
      * Set the recipients from channel subscriptions to send the message to
+     * @throws ExpoException
      */
     public function toChannel(string $channel): self
     {
@@ -107,7 +113,6 @@ class Expo
     /**
      * Retrieves a channels subscriptions
      *
-     * @return array|null
      * @throws ExpoException
      */
     public function getSubscriptions(string $channel): ?array
@@ -138,7 +143,6 @@ class Expo
     /**
      * Check if a value is a valid Expo push token
      *
-     * @param mixed $value
      */
     public function isExpoPushToken(mixed $value): bool
     {
@@ -169,6 +173,7 @@ class Expo
      * Sets the messages to send
      *
      * @param  array|ExpoMessage|ExpoMessage[]  $message
+     * @throws ExpoException
      */
     public function send(array|ExpoMessage $message): self
     {
@@ -194,7 +199,6 @@ class Expo
     /**
      * Sets the default recipients
      *
-     * @param  array|string|null  $recipients
      * @throws InvalidTokensException
      * @throws ExpoException
      */
@@ -209,31 +213,50 @@ class Expo
      * Send the messages to the expo server
      *
      * @throws ExpoException
+     * @throws GuzzleException
      */
     public function push(): ExpoResponse
     {
-        if (empty($this->messages)) {
+        if (count($this->messages) === 0) {
             throw new ExpoException('You must have at least one message to push');
+        }
+
+        $defaultTokens = null;
+
+        if ($this->recipients !== null) {
+            // Recipients are pre-validated in to(), but we re-validate defensively here
+            // in case of future modifications to internal state or direct property access
+            try {
+                $defaultTokens = Utils::validateTokens($this->recipients);
+            } catch (InvalidTokensException $e) {
+                throw new ExpoException('Default recipients are invalid', 0, $e);
+            } catch (ExpoException $e) {
+                throw new ExpoException('No valid default recipients provided.', 0, $e);
+            }
         }
 
         $messages = [];
 
-        /**
-         * When a response ticket has DeviceNotRegistered it has no indication which push token produced this error.
-         * However it is known the order of messages and response tickets are the same.
-         * So the only way to keep track of invalid tokens is by their indices.
-         * For this to work we need to flatten messages' recipients.
-         */
         foreach ($this->messages as $message) {
-            $message = $message->toArray();
-            $tokens = $message['to'] ?? $this->recipients;
+            $messageArray = $message->toArray();
 
-            if (empty($tokens)) {
+            $hasExplicitTo = array_key_exists('to', $messageArray);
+            $tokensSource = $hasExplicitTo ? $messageArray['to'] : $defaultTokens;
+
+            if ($tokensSource === null || $tokensSource === []) {
                 throw new ExpoException('A message must have at least one recipient to send');
             }
 
-            foreach (Utils::arrayWrap($tokens) as $token) {
-                $messages[] = array_merge($message, ['to' => $token]);
+            try {
+                $validatedTokens = Utils::validateTokens($tokensSource);
+            } catch (InvalidTokensException|ExpoException $e) {
+                throw new ExpoException('A message must have at least one valid recipient to send', 0, $e);
+            }
+
+            foreach ($validatedTokens as $token) {
+                $payload = $messageArray;
+                $payload['to'] = $token;
+                $messages[] = $payload;
             }
         }
 
@@ -242,18 +265,21 @@ class Expo
         $response = $this->client->sendPushNotifications($messages);
 
         if (self::hasMacro('devicesNotRegistered')) {
-            $notRegisteredTokens = [];
+            $data = $response->getData();
+            if (is_array($data)) {
+                $notRegisteredTokens = [];
 
-            foreach ($response->getData() as $index => $ticket) {
-                if (($ticket['details']['error'] ?? '') === 'DeviceNotRegistered') {
-                    $notRegisteredTokens[] = $ticket['details']['expoPushToken'] ?? $messages[$index]['to'];
+                foreach ($data as $index => $ticket) {
+                    if (($ticket['details']['error'] ?? '') === 'DeviceNotRegistered') {
+                        $notRegisteredTokens[] = $ticket['details']['expoPushToken'] ?? ($messages[$index]['to'] ?? null);
+                    }
                 }
-            }
 
-            if (! empty($notRegisteredTokens)) {
-                $this->devicesNotRegistered(
-                    array_unique($notRegisteredTokens)
-                );
+                $notRegisteredTokens = array_values(array_unique(array_filter($notRegisteredTokens, 'is_string')));
+
+                if (count($notRegisteredTokens) > 0) {
+                    $this->devicesNotRegistered($notRegisteredTokens);
+                }
             }
         }
 
@@ -263,7 +289,7 @@ class Expo
     /**
      * Fetches the push notification receipts from the expo server
      *
-     * @throws ExpoException
+     * @throws ExpoException|GuzzleException
      */
     public function getReceipts(array $ticketIds): ExpoResponse
     {
