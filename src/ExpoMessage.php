@@ -7,6 +7,7 @@ namespace ExpoSDK;
 use ExpoSDK\Exceptions\ExpoException;
 use ExpoSDK\Exceptions\ExpoMessageException;
 use ExpoSDK\Exceptions\InvalidTokensException;
+use stdClass;
 
 /**
  * Implementation of Expo message request format
@@ -98,9 +99,9 @@ class ExpoMessage
      *
      * iOS only.
      *
-     * @var numeric|null
+     * @var int|float|null
      */
-    private string|int|null|float $badge = null;
+    private int|float|null $badge = null;
 
     /**
      * ID of the Notification Channel through which to display this notification.
@@ -193,20 +194,41 @@ class ExpoMessage
      */
     public function setData(mixed $data = null): self
     {
-        if (gettype($data) === 'array' && empty($data)) {
-            $data = new \stdClass();
+        if ($data === null) {
+            $this->data = null;
+
+            return $this;
         }
 
-        if ($data !== null && ! is_object($data) && ! Utils::isAssoc($data)) {
-            throw new ExpoMessageException(sprintf(
-                'Message data must be either an associative array, object or null. %s given',
-                gettype($data)
-            ));
+        if (is_array($data)) {
+            if ($data === []) {
+                $this->data = new stdClass();
+
+                return $this;
+            }
+
+            if (! Utils::isAssoc($data)) {
+                throw new ExpoMessageException(sprintf(
+                    'Message data must be either an associative array, object or null. %s given',
+                    gettype($data)
+                ));
+            }
+
+            $this->data = $data;
+
+            return $this;
         }
 
-        $this->data = $data;
+        if (is_object($data)) {
+            $this->data = $data;
 
-        return $this;
+            return $this;
+        }
+
+        throw new ExpoMessageException(sprintf(
+            'Message data must be either an associative array, object or null. %s given',
+            gettype($data)
+        ));
     }
 
     /**
@@ -349,11 +371,11 @@ class ExpoMessage
      *
      * @see badge
      *
-     * @param  int|null  $badge
+     * @param  int|float|null  $badge
      *
      * @return $this
      */
-    public function setBadge(?int $badge = null): self
+    public function setBadge(int|float|null $badge = null): self
     {
         $this->badge = $badge;
 
@@ -432,14 +454,11 @@ class ExpoMessage
      */
     public function toArray(): array
     {
-        $attributes = [];
+        $attributes = get_object_vars($this);
 
-        foreach ($this as $key => $value) {
-            if (! is_null($value)) {
-                $attributes[$key] = $value;
-            }
-        }
-
-        return $attributes;
+        return array_filter(
+            $attributes,
+            static fn(mixed $value): bool => $value !== null
+        );
     }
 }
