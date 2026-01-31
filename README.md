@@ -2,14 +2,17 @@
 
 Server-side library for working with Expo using PHP.
 
-## Fork notice
+## Fork Notice
 
-This repository is a modernization fork of [`ctwillie/expo-server-sdk-php`](https://github.com/ctwillie/expo-server-sdk-php).
+This is a modernization fork of [`ctwillie/expo-server-sdk-php`](https://github.com/ctwillie/expo-server-sdk-php), maintained for ongoing support and modern PHP compatibility.
 
-- Focus: ongoing maintenance, PHP 8.4+ compatibility, improved type safety, and dependency updates (with minimal intended API changes).
-- License: MIT (see `LICENSE.md`). Full credit to the original author and contributors.
+**Focus:** Ongoing maintenance, PHP 8.4+ compatibility, improved type safety, enhanced testing, and dependency updates while maintaining API compatibility.
 
-If you have any problems with the code in this repository, feel free to [open an issue](https://github.com/shawnlindstrom/expo-server-sdk-php/issues) or make a PR!
+**Requirements:** PHP 8.4 or higher
+
+**License:** MIT (see `LICENSE.md`). Full credit to the original author and contributors.
+
+If you encounter any issues or would like to contribute, please [open an issue](https://github.com/shawnlindstrom/expo-server-sdk-php/issues) or submit a pull request!
 
 <details open="open">
 <summary>Table of Contents</summary>
@@ -133,7 +136,7 @@ $recipients = [
 ];
 
 // name your channel anything you'd like
-$channel = 'news-letter';
+$channel = 'newsletter';
 // the channel will be created automatically if it doesn't already exist
 $expo->subscribe($channel, $recipients);
 
