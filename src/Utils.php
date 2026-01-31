@@ -103,7 +103,7 @@ final class Utils
 
         $tokens = array_filter(
             self::arrayWrap($tokens),
-            static fn(mixed $token): bool => self::isExpoPushToken($token)
+            static fn (mixed $token): bool => self::isExpoPushToken($token)
         );
 
         if (count($tokens) === 0) {

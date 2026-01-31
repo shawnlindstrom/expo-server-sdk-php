@@ -6,4 +6,6 @@ namespace ExpoSDK\Exceptions;
 
 use Exception;
 
-class UnsupportedDriverException extends Exception {}
+class UnsupportedDriverException extends Exception
+{
+}

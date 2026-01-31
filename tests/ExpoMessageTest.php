@@ -2,8 +2,8 @@
 
 namespace ExpoSDK\Tests;
 
-use ExpoSDK\ExpoMessage;
 use ExpoSDK\Exceptions\ExpoMessageException;
+use ExpoSDK\ExpoMessage;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 use stdClass;
