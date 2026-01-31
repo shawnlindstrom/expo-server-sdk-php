@@ -2,6 +2,13 @@
 
 All notable changes to `expo-server-sdk-php` will be documented in this file.
 
+## [1.0.1] - 2026-01-31
+
+### Continuous Integration
+
+- Added friendsofphp/php-cs-fixer to dev dependencies
+- Added composer script for running code style check and fix
+
 ## [1.0.0] - 2026-01-31
 
 ### Fork / Maintenance
