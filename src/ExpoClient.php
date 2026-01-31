@@ -13,6 +13,16 @@ class ExpoClient
     public const string EXPO_BASE_URL = 'https://exp.host/--/api/v2';
 
     /**
+     * Compression threshold in kilobytes
+     */
+    private const int COMPRESSION_THRESHOLD_KB = 1;
+
+    /**
+     * Compression level (1-9, where 6 is a good balance of speed/compression)
+     */
+    private const int COMPRESSION_LEVEL = 6;
+
+    /**
      * The Expo access token
      */
     private ?string $accessToken = null;
@@ -30,6 +40,8 @@ class ExpoClient
 
     /**
      * Sends push notification messages to the Expo api
+     *
+     * @throws GuzzleException|ExpoException
      */
     public function sendPushNotifications(array $messages): ExpoResponse
     {
@@ -108,6 +120,13 @@ class ExpoClient
 
         $result = json_decode((string) $response->getBody(), true);
 
+        if ($result === null || json_last_error() !== JSON_ERROR_NONE) {
+            throw new ExpoException(
+                'Invalid JSON response from Expo API',
+                $response->getStatusCode()
+            );
+        }
+
         if (! array_key_exists('data', $result) || ! is_array($result['data'])) {
             throw new ExpoException(
                 'Expected Expo to respond with a map from receipt IDs to receipts but received data of another type'
@@ -145,15 +164,15 @@ class ExpoClient
     }
 
     /**
-     * Compresses a string if > 1kib in size
+     * Compresses a string if it exceeds the compression threshold
      */
     private function compressBody(array $value): array
     {
         $value = json_encode($value);
         $compressed = false;
 
-        if ((strlen($value) / 1024) > 1) {
-            $value = gzencode($value, 6) ?? $value;
+        if ((strlen($value) / 1024) > self::COMPRESSION_THRESHOLD_KB) {
+            $value = gzencode($value, self::COMPRESSION_LEVEL) ?? $value;
             $compressed = true;
         }
 
