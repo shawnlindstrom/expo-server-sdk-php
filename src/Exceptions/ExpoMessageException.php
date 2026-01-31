@@ -6,7 +6,4 @@ namespace ExpoSDK\Exceptions;
 
 use Exception;
 
-class ExpoMessageException extends Exception
-{
-    //
-}
+class ExpoMessageException extends Exception {}

@@ -6,7 +6,4 @@ namespace ExpoSDK\Exceptions;
 
 use Exception;
 
-class FileDoesntExistException extends Exception
-{
-    //
-}
+class FileDoesntExistException extends Exception {}

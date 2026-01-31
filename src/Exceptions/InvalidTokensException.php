@@ -6,7 +6,4 @@ namespace ExpoSDK\Exceptions;
 
 use Exception;
 
-class InvalidTokensException extends Exception
-{
-    //
-}
+class InvalidTokensException extends Exception {}

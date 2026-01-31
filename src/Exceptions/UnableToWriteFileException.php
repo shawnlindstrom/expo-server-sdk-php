@@ -6,7 +6,4 @@ namespace ExpoSDK\Exceptions;
 
 use Exception;
 
-class UnableToWriteFileException extends Exception
-{
-    //
-}
+class UnableToWriteFileException extends Exception {}
