@@ -4,6 +4,10 @@ declare(strict_types=1);
 
 namespace ExpoSDK\Drivers;
 
+use ExpoSDK\Exceptions\FileDoesntExistException;
+use ExpoSDK\Exceptions\InvalidFileException;
+use ExpoSDK\Exceptions\UnableToReadFileException;
+use ExpoSDK\Exceptions\UnableToWriteFileException;
 use ExpoSDK\File;
 
 class FileDriver extends Driver
@@ -22,6 +26,10 @@ class FileDriver extends Driver
      */
     private File $file;
 
+    /**
+     * @throws FileDoesntExistException
+     * @throws InvalidFileException
+     */
     public function __construct(array $config)
     {
         $this->build($config);
@@ -29,16 +37,24 @@ class FileDriver extends Driver
 
     /**
      * Builds the driver instance
+     *
+     * @throws FileDoesntExistException
+     * @throws InvalidFileException
      */
     protected function build(array $config): void
     {
-        $path = $config['path'] ?? $this->path;
+        $path = array_key_exists('path', $config) ? $config['path'] : $this->path;
+
+        if (! is_string($path) || $path === '') {
+            throw new FileDoesntExistException('The file  does not exist.');
+        }
 
         $this->file = new File($path);
     }
 
     /**
      * Stores tokens for a channel
+     * @throws UnableToReadFileException|UnableToWriteFileException
      */
     public function store(string $channel, array $tokens): bool
     {
@@ -54,7 +70,7 @@ class FileDriver extends Driver
     /**
      * Retrieves a channels subscriptions
      *
-     * @return array|null
+     * @throws UnableToReadFileException
      */
     public function retrieve(string $channel): ?array
     {
@@ -64,7 +80,9 @@ class FileDriver extends Driver
     }
 
     /**
-     * Removes subscriptions from a channel
+     * Removes subscriptions from a channel\
+     *
+     * @throws UnableToReadFileException|UnableToWriteFileException
      */
     public function forget(string $channel, array $tokens): bool
     {
@@ -80,7 +98,7 @@ class FileDriver extends Driver
             return ! in_array($token, $tokens);
         });
 
-        // delete channel if there are no more subscriptions
+        // delete the channel if there are no more subscriptions
         if (count($subs) === 0) {
             unset($store->{$channel});
         } else {
