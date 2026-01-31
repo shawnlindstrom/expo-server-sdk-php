@@ -6,13 +6,20 @@ namespace ExpoSDK;
 
 use ExpoSDK\Drivers\Driver;
 use ExpoSDK\Drivers\FileDriver;
+use ExpoSDK\Exceptions\FileDoesntExistException;
+use ExpoSDK\Exceptions\InvalidFileException;
 use ExpoSDK\Exceptions\InvalidTokensException;
 use ExpoSDK\Exceptions\UnsupportedDriverException;
 
 class DriverManager
 {
-    private array $supportedDrivers = [
-        'file',
+    /**
+     * Map of driver keys to their implementation classes
+     *
+     * @var array<string, class-string<Driver>>
+     */
+    private array $driverMap = [
+        'file' => FileDriver::class,
     ];
 
     private string $driverKey;
@@ -22,6 +29,11 @@ class DriverManager
      */
     private Driver $driver;
 
+    /**
+     * @throws FileDoesntExistException
+     * @throws InvalidFileException
+     * @throws UnsupportedDriverException
+     */
     public function __construct(string $driver, array $config = [])
     {
         $this->validateDriver($driver)
@@ -37,10 +49,11 @@ class DriverManager
     {
         $this->driverKey = strtolower($driver);
 
-        if (! in_array($this->driverKey, $this->supportedDrivers)) {
+        if (! array_key_exists($this->driverKey, $this->driverMap)) {
             throw new UnsupportedDriverException(sprintf(
-                'Driver %s is not supported',
-                $driver
+                'Driver %s is not supported. Supported drivers: %s',
+                $driver,
+                implode(', ', array_keys($this->driverMap))
             ));
         }
 
@@ -48,19 +61,24 @@ class DriverManager
     }
 
     /**
-     * Builds the driver instance
+     * Builds the driver instance using the driver registry
+     *
+     * @throws FileDoesntExistException
+     * @throws InvalidFileException
      */
     private function buildDriver(array $config): void
     {
-        if ($this->driverKey === 'file') {
-            $this->driver = new FileDriver($config);
-        }
+        $driverClass = $this->driverMap[$this->driverKey];
+        $this->driver = new $driverClass($config);
     }
 
     /**
      * Subscribes tokens to a channel
      *
-     * @param null|string|array $tokens
+     * @param  string  $channel
+     * @param  null|string|array  $tokens
+     * @return bool
+     * @throws InvalidTokensException
      */
     public function subscribe(string $channel, array|string|null $tokens): bool
     {
@@ -73,6 +91,7 @@ class DriverManager
     /**
      * Get a channels tokens
      *
+     * @param  string  $channel
      * @return array|null
      */
     public function getSubscriptions(string $channel): ?array
@@ -85,7 +104,10 @@ class DriverManager
     /**
      * Unsubscribes tokens from a channel
      *
+     * @param  string  $channel
      * @param  array|string|null  $tokens
+     * @return bool
+     * @throws InvalidTokensException
      */
     public function unsubscribe(string $channel, array|string|null $tokens): bool
     {
@@ -106,7 +128,8 @@ class DriverManager
     /**
      * Normalizes tokens to be an array
      *
-     * @param  array|string  $tokens
+     * @param  array|string|null  $tokens
+     * @return array
      * @throws InvalidTokensException
      */
     private function normalizeTokens(array|string|null $tokens): array
