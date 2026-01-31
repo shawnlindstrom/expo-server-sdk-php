@@ -29,7 +29,7 @@ class ExpoResponse
      */
     public function ok(): bool
     {
-        return $this->getStatusCode() === 200 &&
+        return $this->statusCode === 200 &&
             ! array_key_exists('errors', $this->response);
     }
 
