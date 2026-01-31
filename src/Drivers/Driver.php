@@ -19,12 +19,11 @@ abstract class Driver
     /**
      * Retrieves a channels subscriptions
      *
-     * @return array|null
      */
     abstract public function retrieve(string $channel): ?array;
 
     /**
-     * Removes subscriptions from a channels
+     * Removes subscriptions from channels
      */
     abstract public function forget(string $channel, array $tokens): bool;
 }
