@@ -8,12 +8,22 @@ use ExpoSDK\Exceptions\FileDoesntExistException;
 use ExpoSDK\Exceptions\InvalidFileException;
 use ExpoSDK\Exceptions\UnableToReadFileException;
 use ExpoSDK\Exceptions\UnableToWriteFileException;
+use JsonException;
+use stdClass;
 
 class File
 {
     /** @var string */
     private string $path;
 
+    /**
+     * @param  string  $path
+     * @throws FileDoesntExistException
+     * @throws InvalidFileException
+     * @throws JsonException
+     * @throws UnableToReadFileException
+     * @throws UnableToWriteFileException
+     */
     public function __construct(string $path)
     {
         $this->path = $path;
@@ -41,7 +51,7 @@ class File
     }
 
     /**
-     * Check if the file has a json extension
+     * Check if the file has a JSON extension
      */
     private function isJson(string $path): bool
     {
@@ -50,13 +60,44 @@ class File
 
     /**
      * Ensures the file contains an object
+     * @throws JsonException
+     * @throws UnableToReadFileException
+     * @throws UnableToWriteFileException
      */
     private function validateContents(): void
     {
-        $contents = $this->read();
+        if (! is_file($this->path) || ! is_readable($this->path)) {
+            throw new UnableToReadFileException(sprintf(
+                'Unable to read file at %s.',
+                $this->path
+            ));
+        }
 
-        if (gettype($contents) !== "object") {
-            $this->write(new \stdClass());
+        $contents = file_get_contents($this->path);
+
+        if ($contents === false) {
+            throw new UnableToReadFileException(sprintf(
+                'Unable to read file at %s.',
+                $this->path
+            ));
+        }
+
+        if (trim($contents) === '') {
+            $this->write(new stdClass());
+            return;
+        }
+
+        try {
+            $decoded = json_decode($contents, false, 512, JSON_THROW_ON_ERROR);
+        } catch (JsonException $e) {
+            throw new UnableToReadFileException(sprintf(
+                'Unable to read file at %s.',
+                $this->path
+            ), 0, $e);
+        }
+
+        if (! is_object($decoded)) {
+            $this->write(new stdClass());
         }
     }
 
@@ -68,7 +109,14 @@ class File
      */
     public function read(): ?object
     {
-        $contents = @file_get_contents($this->path);
+        if (! is_file($this->path) || ! is_readable($this->path)) {
+            throw new UnableToReadFileException(sprintf(
+                'Unable to read file at %s.',
+                $this->path
+            ));
+        }
+
+        $contents = file_get_contents($this->path);
 
         if ($contents === false) {
             throw new UnableToReadFileException(sprintf(
@@ -77,13 +125,25 @@ class File
             ));
         }
 
-        return json_decode($contents);
+        if (trim($contents) === '') {
+            return new stdClass();
+        }
+
+        try {
+            return json_decode($contents, false, 512, JSON_THROW_ON_ERROR);
+        } catch (JsonException $e) {
+            throw new UnableToReadFileException(sprintf(
+                'Unable to read file at %s.',
+                $this->path
+            ), 0, $e);
+        }
     }
 
     /**
      * Writes content to the file
      *
      * @throws UnableToWriteFileException
+     * @throws JsonException
      */
     public function write(object $contents): bool
     {
@@ -96,10 +156,8 @@ class File
             throw $exception;
         }
 
-        $result = @file_put_contents(
-            $this->path,
-            json_encode($contents)
-        );
+        $json = json_encode($contents, JSON_THROW_ON_ERROR);
+        $result = file_put_contents($this->path, $json, LOCK_EX);
 
         if ($result === false) {
             throw $exception;
@@ -110,9 +168,12 @@ class File
 
     /**
      * Empties the files contents
+     *
+     * @throws UnableToWriteFileException
+     * @throws JsonException
      */
     public function empty(): void
     {
-        $this->write(new \stdClass());
+        $this->write(new stdClass());
     }
 }
