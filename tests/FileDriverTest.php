@@ -154,6 +154,13 @@ class FileDriverTest extends TestCase
     }
 
     #[Test]
+    public function unsubscribe_is_noop_when_channel_has_no_subscriptions()
+    {
+        $result = $this->expo->unsubscribe('channel-does-not-exist', 'ExpoPushToken[random-token]');
+        $this->assertTrue($result);
+    }
+
+    #[Test]
     public function channel_is_deleted_when_all_subscriptions_are_removed()
     {
         $channel = 'default';
