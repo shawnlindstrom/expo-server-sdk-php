@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace ExpoSDK;
 
 use ExpoSDK\Exceptions\ExpoException;
+use JsonException;
 use Psr\Http\Message\ResponseInterface;
 
 class ExpoErrorManager
@@ -14,22 +15,20 @@ class ExpoErrorManager
      */
     public function parseErrorResponse(ResponseInterface $response): ExpoException
     {
+        $statusCode = $response->getStatusCode();
         $textBody = (string) $response->getBody();
-        $result = null;
 
-        $result = json_decode($textBody, true);
-        if (is_null($result) || json_last_error() !== JSON_ERROR_NONE) {
-            return $this->getTextResponseError($textBody, $response->getStatusCode());
+        try {
+            $result = json_decode($textBody, associative: true, flags: JSON_THROW_ON_ERROR);
+        } catch (JsonException) {
+            return $this->getTextResponseError($textBody, $statusCode);
         }
 
-        if (! $this->responseHasErrors($result)) {
-            return $this->getTextResponseError($textBody, $response->getStatusCode());
+        if (! is_array($result) || ! $this->responseHasErrors($result)) {
+            return $this->getTextResponseError($textBody, $statusCode);
         }
 
-        return $this->getErrorFromResult(
-            $result,
-            $response->getStatusCode()
-        );
+        return $this->getErrorFromResult($result, $statusCode);
     }
 
     /**
