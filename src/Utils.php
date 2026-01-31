@@ -7,8 +7,16 @@ namespace ExpoSDK;
 use ExpoSDK\Exceptions\ExpoException;
 use ExpoSDK\Exceptions\InvalidTokensException;
 
-class Utils
+final class Utils
 {
+    /**
+     * Prevent instantiation of utility class
+     */
+    private function __construct()
+    {
+        // Utility class should not be instantiated
+    }
+
     /**
      * Check if a value is a valid Expo push token
      *
@@ -54,7 +62,7 @@ class Utils
     }
 
     /**
-     * Wrap data in array if data is not an array
+     * Wrap data in the array if data is not an array
      *
      * @param mixed $data
      *
@@ -84,14 +92,15 @@ class Utils
             ));
         }
 
-        $tokens = array_filter(Utils::arrayWrap($tokens), function ($token) {
-            return Utils::isExpoPushToken($token);
-        });
+        $tokens = array_filter(
+            self::arrayWrap($tokens),
+            static fn(mixed $token): bool => self::isExpoPushToken($token)
+        );
 
         if (count($tokens) === 0) {
             throw new ExpoException('No valid expo tokens provided.');
         }
 
-        return $tokens;
+        return array_values($tokens);
     }
 }
